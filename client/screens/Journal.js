@@ -1,193 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, TouchableOpacity, Modal, FlatList } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import Checkbox from 'expo-checkbox';
 
-function Journal() {
-  const [date, setDate] = useState(new Date());
-  const [startTime, setStartTime] = useState('');
-  const [duration, setDuration] = useState('');
-  const [events, setEvents] = useState('');
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [daydreams, setDaydreams] = useState([]);
+const MoodJournalScreen = () => {
+  const [moodText, setMoodText] = useState('');
+  const [checkedItems, setCheckedItems] = useState({
+    option1: false,
+    option2: false,
+    option3: false,
+    option4: false,
+  });
 
-  useEffect(() => {
-    loadDaydreams();
-  }, []);
-
-  const loadDaydreams = async () => {
-    try {
-      const storedDaydreams = await AsyncStorage.getItem('daydreams');
-      if (storedDaydreams !== null) {
-        setDaydreams(JSON.parse(storedDaydreams));
-      }
-    } catch (error) {
-      console.error('Error loading daydreams:', error);
-    }
+  const handleCheckboxChange = (name, value) => {
+    setCheckedItems({
+      ...checkedItems,
+      [name]: value,
+    });
   };
 
-  const saveDaydreams = async () => {
-    try {
-      await AsyncStorage.setItem('daydreams', JSON.stringify(daydreams));
-    } catch (error) {
-      console.error('Error saving daydreams:', error);
-    }
-  };
-
-  const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(false);
-    setDate(currentDate);
-  };
-
-  const resetform = () => {
-    setDate(new Date());
-    setStartTime('');
-    setDuration('');
-    setEvents('');
-  };
-
-  const handleSubmit = () => {
-    resetform();
-    const newDaydream = {
-      date: date.toDateString(),
-      startTime,
-      duration,
-      events
-    };
-    setDaydreams([...daydreams, newDaydream]);
-    saveDaydreams();
-    setModalVisible(true);
-  };
+  
+  const moodImages = [
+    require('../assets/smiling-icon.jpg'),  
+    require('../assets/smiling-icon.jpg'),  
+    require('../assets/smiling-icon.jpg'),  
+    require('../assets/smiling-icon.jpg'),  
+    require('../assets/sad-icon.jpg'),  
+    
+  ];
 
   return (
-    <View style={styles.container}>
-        <FlatList
-        data={daydreams}
-        renderItem={({ item }) => (
-          <View style={styles.daydreamItem}>
-            <Text>Date: {item.date}</Text>
-            <Text>Start Time: {item.startTime}</Text>
-            <Text>Duration: {item.duration} minutes</Text>
-            <Text>Events: {item.events}</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Mood Journal</Text>
+      <View style={styles.moodIcons}>
+        {moodImages.map((image, index) => (
+          <Image key={index} source={image} style={styles.moodIcon} />
+        ))}
+      </View>
+      <Text style={styles.subtitle}>What's affecting your mood?</Text>
+      <View style={styles.checkboxContainer}>
+        {Object.keys(checkedItems).map((item, index) => (
+          <View key={index} style={styles.checkboxItem}>
+            <Checkbox
+              value={checkedItems[item]}
+              onValueChange={(newValue) => handleCheckboxChange(item, newValue)}
+            />
+            <Text style={styles.checkboxLabel}>Option {index + 1}</Text>
           </View>
-        )}
-        keyExtractor={(item, index) => index.toString()}
+        ))}
+      </View>
+      <Text style={styles.subtitle}>Let's write about it</Text>
+      <TextInput
+        style={styles.textInput}
+        placeholder="How is your day going? How has it affected your mood? Or anything else..."
+        multiline
+        value={moodText}
+        onChangeText={setMoodText}
       />
-      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-        <Text>Select Date: {date.toDateString()}</Text>
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>Log mood</Text>
       </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="date"
-          is24Hour={true}
-          display="default"
-          onChange={handleDateChange}
-        />
-      )}
-      <TextInput
-        style={styles.input}
-        placeholder="Start Time (e.g. 10:00 AM)"
-        value={startTime}
-        onChangeText={text => setStartTime(text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Duration (in minutes)"
-        keyboardType="numeric"
-        value={duration}
-        onChangeText={text => setDuration(text)}
-      />
-      
-      <TextInput
-        style={[styles.input, { height: 100 }]}
-        placeholder="What were you supposedly doing while you were daydreaming?"
-        multiline={true}
-        value={events}
-        onChangeText={text => setEvents(text)}
-      />
-      <TextInput
-        style={[styles.input, { height: 100 }]}
-        placeholder="Events before daydreaming"
-        multiline={true}
-        value={events}
-        onChangeText={text => setEvents(text)}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
-      
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(false);
-        }}
-      >
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalText}>Daydreaming recorded!</Text>
-          <TouchableOpacity
-            style={[styles.button, styles.modalButton]}
-            onPress={() => setModalVisible(false)}
-          >
-            <Text style={styles.buttonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    </View>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#E7EDF1',
     padding: 20,
   },
-  input: {
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F1F1F',
+    marginBottom: 10,
+  },
+  moodIcons: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  moodIcon: {
+    width: 40,
     height: 40,
+    borderRadius: 20,
+    backgroundColor: '#ccc',
+    marginHorizontal: 5,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#1F1F1F',
+    marginBottom: 10,
+  },
+  checkboxContainer: {
     width: '100%',
-    borderColor: 'gray',
+    marginBottom: 20,
+  },
+  checkboxItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  checkboxLabel: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#1F1F1F',
+  },
+  textInput: {
+    width: '100%',
+    height: 100,
+    borderColor: '#ccc',
     borderWidth: 1,
-    marginVertical: 10,
+    borderRadius: 5,
     paddingHorizontal: 10,
+    marginBottom: 20,
+    backgroundColor: '#fff',
   },
   button: {
-    backgroundColor: 'blue',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  daydreamItem: {
-    marginTop: 20,
-    borderColor: 'gray',
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 5,
-  },
-  modalContainer: {
-    flex: 1,
+    width: '100%',
+    height: 50,
+    backgroundColor: '#1F1F1F',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 5,
   },
-  modalText: {
-    fontSize: 20,
-    marginBottom: 20,
-    color: 'white',
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
-  modalButton: {
-    backgroundColor: 'gray',
-  }
 });
 
-export default Journal;
+export default MoodJournalScreen;

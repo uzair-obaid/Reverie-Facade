@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity,StyleSheet } from 'react-native';
 
 const Quiz = () => {
   const questions = [
@@ -37,9 +37,9 @@ const Quiz = () => {
   };
 
   return (
-    <View>
-      <Text>Maladaptive Daydreaming Habits Quiz</Text>
-      <View>
+    <View style={styles.container} >
+      <Text >Maladaptive Daydreaming Habits Quiz</Text>
+      <View style={styles.container1} >
         <Text>{questions[currentQuestion]}</Text>
         {currentQuestion === 4 ? (
           <TextInput
@@ -48,7 +48,7 @@ const Quiz = () => {
             onChangeText={handleResponseChange}
           />
         ) : (
-          <View>
+          <View style={styles.container1}>
             <TouchableOpacity onPress={() => handleResponseChange("Rarely or never")}>
               <Text>Rarely or never</Text>
             </TouchableOpacity>
@@ -65,15 +65,23 @@ const Quiz = () => {
         )}
       </View>
 
-      {currentQuestion !== 0 && <TouchableOpacity onPress={handlePreviousQuestion}><Text>Previous</Text></TouchableOpacity>}
+      {currentQuestion !== 0 && <TouchableOpacity style={styles.container1} onPress={handlePreviousQuestion}><Text>Previous</Text></TouchableOpacity>}
 
       {currentQuestion !== questions.length - 1 ? (
-        <TouchableOpacity onPress={handleNextQuestion}><Text>Next</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.container1} onPress={handleNextQuestion}><Text>Next</Text></TouchableOpacity>
       ) : (
-        <TouchableOpacity onPress={handleSubmit}><Text>Submit</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.container1} onPress={handleSubmit}><Text>Submit</Text></TouchableOpacity>
       )}
     </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container:{
+    alignItems:'center'
+  },
+  container1:{
+    marginLeft:10
+  }
+})
 export default Quiz;
