@@ -20,11 +20,12 @@ const MoodJournalScreen = () => {
 
   
   const moodImages = [
-    require('../assets/smiling-icon.jpg'),  
-    require('../assets/smiling-icon.jpg'),  
-    require('../assets/smiling-icon.jpg'),  
-    require('../assets/smiling-icon.jpg'),  
-    require('../assets/sad-icon.jpg'),  
+    require('../assets/mood1-icon.jpg'),  
+    require('../assets/mood2-icon.jpg'),  
+    require('../assets/mood3-icon.jpg'),  
+    require('../assets/mood4-icon.jpg'),  
+    require('../assets/mood5-icon.jpg'),  
+      
     
   ];
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
+import Header from './components/Header';
 import { SvgXml } from 'react-native-svg';
 import Home from './screens/Home';
 import Journal from './screens/Journal';
@@ -18,20 +19,27 @@ const Tab = createBottomTabNavigator();
 export default function App() {
   return (
     <NavigationContainer>
+      <Header 
+        title="ReverieFacade" 
+        onMenuPress={() => {
+          
+        }} 
+      />
       <Tab.Navigator
         screenOptions={({ route }) => ({
+          headerShown:false,
           tabBarIcon: ({ focused, color, size }) => {
             let icon;
 
             if (route.name === 'Home') {
-              icon = focused ? 'home' : 'home'; 
+              icon = focused ? 'home' : 'home';
               return <MaterialIcons name={icon} size={size} color={color} />;
             } else if (route.name === 'Journal') {
               icon = focused ? <SvgXml xml={journalSharp} width={size} height={size} fill={color} /> : <SvgXml xml={journal} width={size} height={size} fill={color} />;
             } else if (route.name === 'Analytics') {
               icon = focused ? <SvgXml xml={analyticSharp} width={size} height={size} fill={color} /> : <SvgXml xml={analytic} width={size} height={size} fill={color} />;
             } else if (route.name === 'Profile') {
-              icon = focused ? 'account-circle' : 'person-outline'; 
+              icon = focused ? 'account-circle' : 'person-outline';
               return <MaterialIcons name={icon} size={size} color={color} />;
             }
             return icon;
