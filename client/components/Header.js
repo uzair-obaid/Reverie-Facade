@@ -1,16 +1,20 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import ProfileLogo from '../assets/profile';
+import MenuLogo from '../assets/menulogo';
 
-const Header = ({ title, onMenuPress }) => {
+
+
+
+const Header = ({ title, onProfilePress, onMenuPress}) => {
   return (
     <View style={styles.headerContainer}>
-      <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
-        <MaterialIcons name="menu" size={28} color="white" />
+      <TouchableOpacity onPress={onMenuPress} >
+        <MenuLogo/>
       </TouchableOpacity>
       <Text style={styles.headerTitle}>{title}</Text>
-      <TouchableOpacity style={styles.profileButton}>
-        <MaterialIcons name="account-circle" size={28} color="white" />
+      <TouchableOpacity  onPress={onProfilePress}>
+        <ProfileLogo/>
       </TouchableOpacity>
     </View>
   );
@@ -18,25 +22,22 @@ const Header = ({ title, onMenuPress }) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 60,
+    marginTop:30,
+    height: 50,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#007BFF',
+    backgroundColor: '#ABCACF',
     paddingHorizontal: 15,
     paddingTop: 10,
   },
-  menuButton: {
-    padding: 5,
-  },
+  
   headerTitle: {
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
   },
-  profileButton: {
-    padding: 5,
-  },
+  
 });
 
 export default Header;

@@ -2,13 +2,20 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faLock as fasLock,faEnvelope as farEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faEye as farEye, faEyeSlash as farEyeSlash} from '@fortawesome/free-regular-svg-icons'; 
 
 const Tab = createMaterialTopTabNavigator();
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); 
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <View style={styles.container}>
@@ -23,22 +30,35 @@ const LoginScreen = ({ navigation }) => {
       </TouchableOpacity>
 
       <Text style={styles.orText}>or continue with email</Text>
+      <View style={styles.inputContainer}>
+  <View style={styles.icon}>
+    <FontAwesomeIcon icon={farEnvelope} size={20} color="gray" />
+  </View>
+  <TextInput
+    style={styles.input} 
+    placeholder="Email Address"
+    value={email}
+    onChangeText={setEmail}
+    keyboardType="email-address"
+    autoCapitalize="none"
+  />
+</View>
+<View style={styles.inputContainer}>
+  <View style={styles.icon}>
+    <FontAwesomeIcon icon={fasLock} size={20} color="gray" />
+  </View>
+  <TextInput
+    style={styles.input} 
+    placeholder="Password"
+    value={password}
+    onChangeText={setPassword}
+    secureTextEntry={!showPassword}
+  />
+  <TouchableOpacity onPress={toggleShowPassword} style={styles.icon}>
+    <FontAwesomeIcon icon={showPassword ? farEye : farEyeSlash} size={20} color="gray" />
+  </TouchableOpacity>
+</View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email Address"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeScreen')}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
@@ -93,14 +113,42 @@ const SignUpScreen = ({ navigation }) => {
 
 const App = () => {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Login" component={LoginScreen} />
-      <Tab.Screen name="Sign Up" component={SignUpScreen} />
-    </Tab.Navigator>
+    
+      <Tab.Navigator>
+        <Tab.Screen name="Login" component={LoginScreen} />
+        <Tab.Screen name="Sign Up" component={SignUpScreen} />
+      </Tab.Navigator>
+    
   );
 };
 
 const styles = StyleSheet.create({
+  inputContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+  },
+  iconContainer: {
+    width: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRightColor: '#ccc',
+    borderRightWidth: 1,
+  },
+  input: {
+    flex: 1,
+    height: 45,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    width:'auto',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -130,20 +178,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  input: {
-    width: '100%',
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    backgroundColor: '#fff',
+  icon: {
+    padding: 10,
+    width:'10%',
+    justifyContent:'center',
+    alignItems:'center'
   },
   button: {
     width: '100%',
     height: 50,
-    backgroundColor: '#1F1F1F',
+    backgroundColor: '#0A1366',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
@@ -188,15 +232,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1F1F1F',
   },
+  linkText: {
+    color: '#4D6175',
+    textDecorationLine: 'underline',
+  },
   termsText: {
     fontSize: 12,
-    color: '#1F1F1F',
+    color: '#4D6175',
     textAlign: 'center',
     marginTop: 20,
-  },
-  linkText: {
-    color: '#1F1F1F',
-    textDecorationLine: 'underline',
   },
 });
 
