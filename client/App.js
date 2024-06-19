@@ -1,15 +1,18 @@
-// App.js or your main navigation file
+
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
+import { createStackNavigator } from '@react-navigation/stack';
 import Header from './components/Header';
 import Home from './screens/Home';
 import Journal from './screens/Journal';
 import Analytic from './screens/Analytic';
 import Profile from './screens/auth';
 import Reminder from './screens/Reminder';
+import Privacy from './screens/PrivacyPolicy';
+import About from './screens/About';
 
 import JournalLogo from './assets/journallogo';
 import AnalyticsLogo from './assets/analyticslogo';
@@ -19,6 +22,7 @@ import JournalLogoFocused from './assets/journallogoFocused';
 import AnalyticsLogoFocused from './assets/analyticslogoFocused';
 import HomeLogoFocused from './assets/homelogoFocused';
 import ReminderLogoFocused from './assets/ReminderlogoFocused';
+import MenuLogo from './assets/menulogo';
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -86,7 +90,14 @@ function MainTabs() {
 
 function CustomDrawerContent(props) {
   return (
-    <DrawerContentScrollView {...props}>
+    <>
+    <View style={styles.menuLogo}>
+      <TouchableOpacity onPress={() => props.navigation.toggleDrawer()}>
+        <MenuLogo />
+      </TouchableOpacity>
+      </View>
+    <DrawerContentScrollView {...props} style={styles.drawer}>
+      
       <DrawerItem
         label="Home"
         onPress={() => props.navigation.navigate('Home')}
@@ -95,42 +106,43 @@ function CustomDrawerContent(props) {
       />
       <DrawerItem
         label="Tests"
-        onPress={() => props.navigation.navigate('Reminder')}
+        onPress={() => props.navigation.navigate('')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
       <DrawerItem
         label="Dream Analyser"
-        onPress={() => props.navigation.navigate('Journal')}
+        onPress={() => props.navigation.navigate('')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
       <DrawerItem
         label="Dream Logs"
-        onPress={() => props.navigation.navigate('Analytics')}
+        onPress={() => props.navigation.navigate('')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
       <DrawerItem
         label="Privacy policy"
-        onPress={() => props.navigation.navigate('Profile')}
+        onPress={() => props.navigation.navigate('Privacy')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
       <DrawerItem
         label="Helpline"
-        onPress={() => props.navigation.navigate('Profile')}
+        onPress={() => props.navigation.navigate('')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
       <DrawerItem
         label="About Us"
-        onPress={() => props.navigation.navigate('Profile')}
+        onPress={() => props.navigation.navigate('About')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
       
     </DrawerContentScrollView>
+    </>
   );
 }
 
@@ -141,12 +153,16 @@ export default function App() {
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
           header: ({ route }) => (
+            route.name=== 'Privacy' ||route.name=== 'About'? <></>:
             <Header title={route.name === 'ReverieFacade' ? 'ReverieFacade' : route.name} />
+            
           ),
         }}
       >
         <Drawer.Screen name="ReverieFacade" component={MainTabs} />
         <Drawer.Screen name="Profile" component={Profile} />
+        <Drawer.Screen name="Privacy" component={Privacy} />
+        <Drawer.Screen name="About" component={About} />
         
       </Drawer.Navigator>
     </NavigationContainer>
@@ -173,8 +189,26 @@ const styles = StyleSheet.create({
   },
   drawerItem: {
     marginVertical: 5,
+    backgroundColor:'#2B303C',
+    borderRadius:15,
+    borderColor:'white',
+    borderWidth:3,
+    
   },
   drawerItemLabel: {
     fontSize: 18,
+    color:'white'
   },
+  drawer:{
+    backgroundColor:'#689195',
+    
+  },
+  menuLogo:{
+    justifyContent:'center',
+    backgroundColor:'#E2EEF0',
+    marginTop:30,
+    height:40,
+    paddingLeft:'88%',
+    height:50
+  }
 });

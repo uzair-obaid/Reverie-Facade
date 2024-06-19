@@ -2,8 +2,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import ProfileLogo from '../assets/profile';
+import HomeLogo from '../assets/homelogo';
 import MenuLogo from '../assets/menulogo';
 import { useNavigation } from '@react-navigation/native';
+import { Title } from 'react-native-paper';
 
 const Header = ({ title }) => {
   const navigation = useNavigation();
@@ -14,9 +16,14 @@ const Header = ({ title }) => {
         <MenuLogo />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>{title}</Text>
-      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-        <ProfileLogo />
-      </TouchableOpacity>
+      {title === 'Profile'?
+      (<TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <HomeLogo />
+      </TouchableOpacity>)
+      :(<TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+      <ProfileLogo />
+    </TouchableOpacity>)}
+      
     </View>
   );
 };

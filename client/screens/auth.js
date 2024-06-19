@@ -83,7 +83,10 @@ const SignUpScreen = ({ navigation }) => {
       <Text style={styles.title}>REVERIE FACADE</Text>
       <Text style={styles.subtitle}>Create an account</Text>
       <Text style={styles.instruction}>Enter your email to sign up for this app</Text>
-
+    <View style={styles.inputContainer}>
+    <View style={styles.icon}>
+    <FontAwesomeIcon icon={farEnvelope} size={20} color="gray" />
+  </View>
       <TextInput
         style={styles.input}
         placeholder="email@domain.com"
@@ -92,6 +95,7 @@ const SignUpScreen = ({ navigation }) => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
+      </View>
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PasswordScreen')}>
         <Text style={styles.buttonText}>Sign up with email</Text>
       </TouchableOpacity>
