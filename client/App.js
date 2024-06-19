@@ -13,6 +13,7 @@ import Profile from './screens/auth';
 import Reminder from './screens/Reminder';
 import Privacy from './screens/PrivacyPolicy';
 import About from './screens/About';
+import Tests from './screens/quiz';
 
 import JournalLogo from './assets/journallogo';
 import AnalyticsLogo from './assets/analyticslogo';
@@ -106,7 +107,7 @@ function CustomDrawerContent(props) {
       />
       <DrawerItem
         label="Tests"
-        onPress={() => props.navigation.navigate('')}
+        onPress={() => props.navigation.navigate('Tests')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
@@ -153,7 +154,7 @@ export default function App() {
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
           header: ({ route }) => (
-            route.name=== 'Privacy' ||route.name=== 'About'? <></>:
+            route.name=== 'Privacy' ||route.name=== 'About' || route.name=== 'Tests'? <></>:
             <Header title={route.name === 'ReverieFacade' ? 'ReverieFacade' : route.name} />
             
           ),
@@ -163,6 +164,7 @@ export default function App() {
         <Drawer.Screen name="Profile" component={Profile} />
         <Drawer.Screen name="Privacy" component={Privacy} />
         <Drawer.Screen name="About" component={About} />
+        <Drawer.Screen name="Tests" component={Tests} />
         
       </Drawer.Navigator>
     </NavigationContainer>
