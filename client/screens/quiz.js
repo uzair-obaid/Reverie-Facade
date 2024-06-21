@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Arrow from '../assets/leftArrow';
+import BackGr from '../assets/cloudIcon';
 
 const questions = [
   { id: '1', question: 'How often do you find yourself daydreaming?' },
@@ -78,6 +79,12 @@ export default function App() {
   const renderQuestion = () => {
     return (
       <>
+        <View style={styles.graphicContainer}>
+          <BackGr />
+          <TouchableOpacity style={styles.navigateHomeArrow} onPress={() => { navigation.navigate('Home') }}>
+            <Arrow color='#FFFFFF' />
+          </TouchableOpacity>
+        </View>
         <View style={styles.questionContainer}>
           <Text style={styles.questionHeader}>Question {currentQuestionIndex + 1}/{questions.length}</Text>
           <Text style={styles.questionText}>{questions[currentQuestionIndex].question}</Text>
@@ -118,15 +125,18 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.navigateHomeArrow} onPress={() => { navigation.navigate('Home') }}>
-        <Arrow />
-      </TouchableOpacity>
       {renderQuestion()}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  graphicContainer: {
+    height: 100,
+    width: '95%',
+    borderRadius: 25,
+    position: 'relative',
+  },
   container: {
     flex: 1,
     backgroundColor: '#E6F0F1',
@@ -140,6 +150,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '80%',
     alignItems: 'center',
+    marginTop: 30,
   },
   questionHeader: {
     fontSize: 14,
@@ -170,14 +181,18 @@ const styles = StyleSheet.create({
   navButton: {
     backgroundColor: '#2E456F',
     padding: 15,
-    borderRadius: 15,
+    borderRadius: 10,
     marginTop: 20,
-    width: '30%',
+    width: '27%',
     alignItems: 'center',
+    marginLeft: 50,
+    marginRight: 50,
+    // height: 45,
   },
   navButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   optionContainer: {
     alignItems: 'center',
@@ -190,6 +205,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   navigateHomeArrow: {
-    alignItems: 'flex-start',
+    position: 'absolute',
+    top: 0, 
+    left: 0, 
+    padding: 10, 
   },
 });

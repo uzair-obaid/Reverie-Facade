@@ -14,6 +14,8 @@ import Reminder from './screens/Reminder';
 import Privacy from './screens/PrivacyPolicy';
 import About from './screens/About';
 import Tests from './screens/quiz';
+import Helpline from './screens/Helpline'
+import DreamLog from './screens/DreamLog'
 
 import JournalLogo from './assets/journallogo';
 import AnalyticsLogo from './assets/analyticslogo';
@@ -119,7 +121,7 @@ function CustomDrawerContent(props) {
       />
       <DrawerItem
         label="Dream Logs"
-        onPress={() => props.navigation.navigate('')}
+        onPress={() => props.navigation.navigate('DreamLog')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
@@ -131,7 +133,7 @@ function CustomDrawerContent(props) {
       />
       <DrawerItem
         label="Helpline"
-        onPress={() => props.navigation.navigate('')}
+        onPress={() => props.navigation.navigate('Helpline')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
@@ -154,8 +156,8 @@ export default function App() {
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
           header: ({ route }) => (
-            route.name=== 'Privacy' ||route.name=== 'About' || route.name=== 'Tests'? <></>:
-            <Header title={route.name === 'ReverieFacade' ? 'ReverieFacade' : route.name} />
+            route.name=== 'Privacy' ||route.name=== 'About' || route.name=== 'Tests' || route.name=== 'Helpline'? <></>:
+            <Header title={route.name === 'ReverieFacade' ? 'ReverieFacade' : route.name === 'DreamLog'?'Dream Logs':route.name} />
             
           ),
         }}
@@ -165,6 +167,8 @@ export default function App() {
         <Drawer.Screen name="Privacy" component={Privacy} />
         <Drawer.Screen name="About" component={About} />
         <Drawer.Screen name="Tests" component={Tests} />
+        <Drawer.Screen name="Helpline" component={Helpline} />
+        <Drawer.Screen name="DreamLog" component={DreamLog} />
         
       </Drawer.Navigator>
     </NavigationContainer>
