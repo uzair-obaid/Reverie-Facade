@@ -1,26 +1,37 @@
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 
 const DreamLogsScreen = () => {
   const [dreams, setDreams] = useState([]);
 
-  useEffect(() => {
-    const fetchDreams = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/dreams');
-        setDreams(response.data);
-      } catch (error) {
-        Alert.alert('Error', 'There was an error fetching the dreams.');
-        console.error(error);
-      }
-    };
-
-    fetchDreams();
-  }, []);
-
+  useFocusEffect(
+    useCallback(() => {
+      const fetchDreams = async () => {
+        try {
+          const token = await AsyncStorage.getItem('token');
+          console.log(token);
+          const response = await axios.get('http://192.168.0.110:5000/api/journal', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          setDreams(response.data.journalEntries);
+        } catch (error) {
+          Alert.alert('Error', 'There was an error fetching the dreams.');
+          console.error(error);
+        }
+      };
+  
+      fetchDreams(); 
+  
+    }, []) 
+  );
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Dream Logs</Text>
@@ -30,8 +41,9 @@ const DreamLogsScreen = () => {
           <Text style={styles.dreamText}>Theme: {dream.theme}</Text>
           <Text style={styles.dreamText}>Time: {dream.time}</Text>
           <Text style={styles.dreamText}>Duration: {dream.duration} minutes</Text>
-          <Text style={styles.dreamText}>Work Before Dream: {dream.workBeforeDream}</Text>
-          <Text style={styles.dreamText}>Description: {dream.dreamDescription}</Text>
+          <Text style={styles.dreamText}>Task Before Dream: {dream.taskBefore}</Text>
+          <Text style={styles.dreamText}>Task During Dream: {dream.taskDuring}</Text>
+          <Text style={styles.dreamText}>Description: {dream.description}</Text>
         </View>
       ))}
     </ScrollView>

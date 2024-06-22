@@ -47,6 +47,29 @@ const journal = {
         console.log(error);
         res.status(500).json({message :'Server Error'});
     }
+    },
+    retrieve: async(req,res) =>{
+        const authHeader = req.headers.authorization;
+        
+        if (!authHeader) {
+            return res.status(401).json({ message: 'User not logged in' });
+        }
+
+        const tokenArray = authHeader.split(' ');
+        const token = tokenArray[1];
+        if (!token) {
+            return res.status(401).json({ message: 'User not logged in' });
+        }
+
+        const username = await getUsername(token);
+        
+        if (!username) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+
+        const journalEntries = await Journal.find({username});
+        console.log(journalEntries);
+        res.status(200).json({journalEntries});
     }
 };
 

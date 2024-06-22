@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faLock as fasLock, faEnvelope as farEnvelope } from '@fortawesome/free-solid-svg-icons';
-import { faEye as farEye, faEyeSlash as farEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import PasswordScreen from './passwordScreen';
 import axios from 'axios';
+import EyeclosedIcon from'../assets/eyeclosed';
+import EyeopenIcon from'../assets/eyeopen';
+import MailIcon from'../assets/mailIcon';
+import LockIcon from'../assets/lockIcon';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -19,7 +20,7 @@ const LoginScreen = ({ navigation }) => {
     try {
       const response = await axios.post('http://192.168.0.110:5000/api/auth/login', {email,password});
       console.log('done');
-      console.log(response);
+      // console.log(response);
       const token = response.data.token;
       console.log(token);
       if(response.status === 201){
@@ -53,7 +54,7 @@ const LoginScreen = ({ navigation }) => {
       <Text style={styles.orText}>or continue with email</Text>
       <View style={styles.inputContainer}>
         <View style={styles.icon}>
-          <FontAwesomeIcon icon={farEnvelope} size={20} color="gray" />
+          <MailIcon/>
         </View>
         <TextInput
           style={styles.input}
@@ -66,7 +67,7 @@ const LoginScreen = ({ navigation }) => {
       </View>
       <View style={styles.inputContainer}>
         <View style={styles.icon}>
-          <FontAwesomeIcon icon={fasLock} size={20} color="gray" />
+          <LockIcon/>
         </View>
         <TextInput
           style={styles.input}
@@ -76,7 +77,9 @@ const LoginScreen = ({ navigation }) => {
           secureTextEntry={!showPassword}
         />
         <TouchableOpacity onPress={toggleShowPassword} style={styles.icon}>
-          <FontAwesomeIcon icon={showPassword ? farEye : farEyeSlash} size={20} color="gray" />
+          {showPassword?
+          (<EyeclosedIcon/>):
+          (<EyeopenIcon/>)}
         </TouchableOpacity>
       </View>
 
@@ -127,7 +130,7 @@ const SignUpScreen = ({ navigation }) => {
       <Text style={styles.instruction}>Enter your email to sign up for this app</Text>
       <View style={styles.inputContainer}>
         <View style={styles.icon}>
-          <FontAwesomeIcon icon={farEnvelope} size={20} color="gray" />
+          <MailIcon/>
         </View>
         <TextInput
           style={styles.input}

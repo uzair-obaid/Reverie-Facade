@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const MoodJournalScreen = () => {
@@ -58,11 +59,6 @@ const MoodJournalScreen = () => {
 
   const resetFields = () =>{
   setMoodText('');
-  setSelectedMood(null);
-  setSelectedTheme(null);
-  setSelectedCurrentWork(null);
-  setSelectedPreviousWork(null);
-  setSelectedTime(null);
   setDuration('');
   }
   const handleLogDream = async () => {
@@ -78,7 +74,6 @@ const MoodJournalScreen = () => {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      console.log(selectedMood);
       const response = await axios.post('http://192.168.0.110:5000/api/journal', dreamData,
         {
           headers: {
