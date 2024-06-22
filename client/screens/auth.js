@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLock as fasLock, faEnvelope as farEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faEye as farEye, faEyeSlash as farEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import PasswordScreen from './passwordScreen';
+import axios from 'axios';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -14,6 +15,25 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
+  const handleLogin = async() =>{
+    try {
+      const response = await axios.post('http://192.168.0.110:5000/api/auth/login', {email,password});
+      console.log('done');
+      console.log(response);
+      const token = response.data.token;
+      console.log(token);
+      if(response.status === 201){
+        setPassword('');
+      setEmail('');
+      }
+      
+      await AsyncStorage.setItem('token', token);
+
+    } catch (error) {
+      
+      console.error(error);
+    }
+  }
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -60,8 +80,8 @@ const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText} >Login</Text>
       </TouchableOpacity>
 
       <Text style={styles.linkText}>Forgot password?</Text>

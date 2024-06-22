@@ -27,9 +27,13 @@ const App = () => {
     retrieveEmail();
 
     try {
-        const response = await axios.post('http://192.168.0.110:5000/api/auth/', {email,username,password});
+        const response = await axios.post('http://192.168.0.110:5000/api/auth/signup', {email,username,password});
         console.log('done');
-        await AsyncStorage.setItem('userEmail', " ");
+        if(response.status===201){
+        await AsyncStorage.setItem('userEmail', "");
+        setPassword('');
+        setConfirmPassword('');
+        setUsername(''); }
       } catch (error) {
         
         console.error(error);

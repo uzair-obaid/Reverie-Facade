@@ -13,7 +13,7 @@ import Profile from './screens/auth';
 import Reminder from './screens/Reminder';
 import Privacy from './screens/PrivacyPolicy';
 import About from './screens/About';
-import Tests from './screens/quiz';
+import Tests from './screens/tests';
 import Helpline from './screens/Helpline';
 import DreamLog from './screens/DreamLog';
 import Terms from './screens/Terms';

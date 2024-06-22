@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
 
@@ -7,7 +7,8 @@ const MoodJournalScreen = () => {
   const [moodText, setMoodText] = useState('');
   const [selectedMood, setSelectedMood] = useState(null);
   const [selectedTheme, setSelectedTheme] = useState(null);
-  const [selectedWork, setSelectedWork] = useState(null);
+  const [selectedCurrentWork, setSelectedCurrentWork] = useState(null);
+  const [selectedPreviousWork, setSelectedPreviousWork] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [duration, setDuration] = useState('');
 
@@ -55,21 +56,39 @@ const MoodJournalScreen = () => {
     { label: 'Other', value: 'other' },
   ];
 
+  const resetFields = () =>{
+  setMoodText('');
+  setSelectedMood(null);
+  setSelectedTheme(null);
+  setSelectedCurrentWork(null);
+  setSelectedPreviousWork(null);
+  setSelectedTime(null);
+  setDuration('');
+  }
   const handleLogDream = async () => {
     const dreamData = {
       mood: selectedMood,
       theme: selectedTheme,
       time: selectedTime,
       duration: duration,
-      workBeforeDream: selectedWork,
+      workBeforeDream: selectedPreviousWork,
+      workDuringDream: selectedCurrentWork,
       dreamDescription: moodText,
     };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/dreams', dreamData);
-      Alert.alert('Success', 'Dream logged successfully!');
+      const token = await AsyncStorage.getItem('token');
+      console.log(selectedMood);
+      const response = await axios.post('http://192.168.0.110:5000/api/journal', dreamData,
+        {
+          headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+      );
+      resetFields();
     } catch (error) {
-      Alert.alert('Error', 'There was an error logging your dream.');
+      
       console.error(error);
     }
   };
@@ -117,10 +136,19 @@ const MoodJournalScreen = () => {
         value={duration}
         onChangeText={setDuration}
       />
-      <Text style={styles.subtitle}>What were you doing just before you started daydreaming?</Text>
+      <Text style={styles.subtitle}>What were you doing when you started daydreaming?</Text>
       <View style={styles.dropdownContainer}>
         <RNPickerSelect
-          onValueChange={(value) => setSelectedWork(value)}
+          onValueChange={(value) => setSelectedCurrentWork(value)}
+          items={workOptions}
+          style={pickerSelectStyles}
+          placeholder={{ label: 'Select a task...', value: null }}
+        />
+      </View>
+      <Text style={styles.subtitle}>What were you doing prior to this task?</Text>
+      <View style={styles.dropdownContainer}>
+        <RNPickerSelect
+          onValueChange={(value) => setSelectedPreviousWork(value)}
           items={workOptions}
           style={pickerSelectStyles}
           placeholder={{ label: 'Select a task...', value: null }}

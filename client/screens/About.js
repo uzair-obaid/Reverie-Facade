@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
       fontSize: 20,
       color: '#0A1366',
       fontWeight: 'bold',
-      fontFamily:'DroidSans'
       
     },
     link: {

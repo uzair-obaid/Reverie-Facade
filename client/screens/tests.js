@@ -1,34 +1,30 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Arrow from '../assets/leftArrow';
 import BackGr from '../assets/cloudIcon';
 
 const questions = [
   { id: '1', question: 'How often do you find yourself daydreaming?' },
-  { id: '2', question: 'Do you feel a strong emotional attachment to the characters or stories in your daydreams?' },
-  { id: '3', question: 'Are your daydreams vivid and immersive, often lasting a long time?' },
-  { id: '4', question: 'How often do you daydream when you should be focused, like at work or while driving?' },
-  { id: '5', question: 'Do you daydream in stressful situations?' },
-  { id: '6', question: 'How often do you listen to music?' },
-  { id: '7', question: 'How often do you daydream while listening to music?' },
-  { id: '8', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '9', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '10', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '11', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '12', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '13', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '14', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '15', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '16', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '17', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '18', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '19', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '20', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '21', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '22', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '23', question: 'Do you find it easy to stay focused on tasks?' },
-  { id: '24', question: 'Do you find it easy to stay focused on tasks?' },
+  { id: '2', question: 'Are your daydreams vivid and immersive, often lasting a long time?' },
+  { id: '3', question: 'How often do you daydream when you should be focused, like at work or while driving?' },
+  { id: '4', question: 'Do you daydream in stressful situations?' },
+  { id: '5', question: 'How often do you listen to music?' },
+  { id: '6', question: 'How often do you daydream while listening to music?' },
+  { id: '7', question: 'Is it hard to control when you start daydreaming?' },
+  { id: '8', question: 'Do you feel restlessness in your body, especially your legs?' },
+  { id: '9', question: 'Do you start pacing while daydreaming?' },
+  { id: '10', question: 'How often do you lose track of time while daydreaming?' },
+  { id: '11', question: 'Do you make facial expression while daydreaming?' },
+  { id: '12', question: 'How often do you daydream in social situations?' },
+  { id: '13', question: 'Have often people have noticed your facial expressions?' },
+  { id: '14', question: 'How often do you feel like to avoid people and interations?' },
+  { id: '15', question: 'Do you notice changes in your mood after daydreaming?' },
+  { id: '16', question: 'Do you feel guilty or ashamed about how much you daydream?' },
+  { id: '17', question: 'Do you create detailed, ongoing storylines in your daydreams?' },
+  { id: '18', question: "Do you feel anxious or irritable when you can't daydream?" },
 ];
 
 const options = ['Very often', 'Often', 'Sometimes', 'Rarely or never'];
@@ -58,22 +54,22 @@ export default function App() {
     }
   };
 
-  const submitAnswers = () => {
-    fetch('http://127.0.0.1:5000/test', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ answers }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        Alert.alert('Success', 'Your answers have been submitted!');
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        Alert.alert('Error', 'There was an error submitting your answers.');
-      });
+  const submitAnswers = async () => {
+    try{
+    const token = await AsyncStorage.getItem('token');
+    const name = 'Maladaptive Daydreaming Detection and Severity Test'
+    const response = await axios.post('http://192.168.0.110:5000/api/test/',
+       {answers,name},
+      {
+        headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+    );
+    }
+    catch(error){
+      console.log(error);
+    }
   };
 
   const renderQuestion = () => {

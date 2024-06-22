@@ -1,9 +1,11 @@
 const express = require('express');
-const auth = require('../controllers/auth');
+const {auth} = require('../controllers/auth');
+const {fetch} = require('../controllers/getUsername');
 
 const router = express.Router();
 
-router.post('/', auth.signup);
-router.get('/', auth.login);
+router.post('/signup', auth.signup);
+router.post('/login', auth.login);
+router.post('/fetchUsername', fetch.fetchUsername);
 
 module.exports = router;

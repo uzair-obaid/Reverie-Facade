@@ -43,20 +43,24 @@ const auth = {
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
-            
-            const user = await User.findOne({ email });
+            const users = await User.find();
+            console.log(users);
+            const user = await User.findOne({ email:email });
+            console.log(user);
             if (!user) {
-                return res.status(400).json({ message: 'Invalid credentials' });
+                return res.status(401).json({ message: 'Invalid credentials' });
             }
             
             const isPasswordValid = await bcrypt.compare(password, user.password);
+            console.log(isPasswordValid,password,user.password);
             if (!isPasswordValid) {
-                return res.status(400).json({ message: 'Invalid credentials' });
+                return res.status(401).json({ message: 'Invalid credentials' });
             }
             
             
             else{
             const token = await generateToken(user._id);
+            console.log(token);
             res.status(201).json({ token });
             }
         } catch (error) {
@@ -65,4 +69,4 @@ const auth = {
         }
     }
 };
-module.exports = auth;
+module.exports = {auth, secretKey};
