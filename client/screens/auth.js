@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { NavigationContainer } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faLock as fasLock,faEnvelope as farEnvelope } from '@fortawesome/free-solid-svg-icons';
-import { faEye as farEye, faEyeSlash as farEyeSlash} from '@fortawesome/free-regular-svg-icons'; 
+import { faLock as fasLock, faEnvelope as farEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faEye as farEye, faEyeSlash as farEyeSlash } from '@fortawesome/free-regular-svg-icons';
+import PasswordScreen from './passwordScreen';
 
 const Tab = createMaterialTopTabNavigator();
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
+  
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -19,8 +21,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/logo.jpg')} style={styles.logo} />
-      <Text style={styles.title}>REVERIE FACADE</Text>
+      
 
       <TouchableOpacity style={styles.externalButton}>
         <Text style={styles.externalButtonText}>Login with Google</Text>
@@ -31,35 +32,35 @@ const LoginScreen = ({ navigation }) => {
 
       <Text style={styles.orText}>or continue with email</Text>
       <View style={styles.inputContainer}>
-  <View style={styles.icon}>
-    <FontAwesomeIcon icon={farEnvelope} size={20} color="gray" />
-  </View>
-  <TextInput
-    style={styles.input} 
-    placeholder="Email Address"
-    value={email}
-    onChangeText={setEmail}
-    keyboardType="email-address"
-    autoCapitalize="none"
-  />
-</View>
-<View style={styles.inputContainer}>
-  <View style={styles.icon}>
-    <FontAwesomeIcon icon={fasLock} size={20} color="gray" />
-  </View>
-  <TextInput
-    style={styles.input} 
-    placeholder="Password"
-    value={password}
-    onChangeText={setPassword}
-    secureTextEntry={!showPassword}
-  />
-  <TouchableOpacity onPress={toggleShowPassword} style={styles.icon}>
-    <FontAwesomeIcon icon={showPassword ? farEye : farEyeSlash} size={20} color="gray" />
-  </TouchableOpacity>
-</View>
+        <View style={styles.icon}>
+          <FontAwesomeIcon icon={farEnvelope} size={20} color="gray" />
+        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Email Address"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <View style={styles.icon}>
+          <FontAwesomeIcon icon={fasLock} size={20} color="gray" />
+        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+        />
+        <TouchableOpacity onPress={toggleShowPassword} style={styles.icon}>
+          <FontAwesomeIcon icon={showPassword ? farEye : farEyeSlash} size={20} color="gray" />
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeScreen')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
@@ -67,8 +68,12 @@ const LoginScreen = ({ navigation }) => {
 
       <Text style={styles.termsText}>
         By signing in with an account, you agree to our{' '}
-        <Text style={styles.linkText}>Terms of Service</Text> and{' '}
+        <TouchableOpacity onPress={() => navigation.navigate('Terms')}>
+        <Text style={styles.linkText}>Terms of Service</Text>  
+        </TouchableOpacity>and{' '}
+        <TouchableOpacity onPress={() => navigation.navigate('Privacy')}>
         <Text style={styles.linkText}>Privacy Policy</Text>
+        </TouchableOpacity>
       </Text>
     </View>
   );
@@ -76,27 +81,45 @@ const LoginScreen = ({ navigation }) => {
 
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const storeEmail = async (email) => {
+    try {
+        await AsyncStorage.setItem('userEmail', email);
+    } catch (error) {
+        console.error('Error storing email:', error);
+    }
+};
+  const handleSignUp = () => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailPattern.test(email)) {
+      setEmailError('');
+      storeEmail(email);
+      navigation.navigate('PasswordScreen');
+    } else {
+      setEmailError('Please enter a valid email address');
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/logo.jpg')} style={styles.logo} />
-      <Text style={styles.title}>REVERIE FACADE</Text>
+      
       <Text style={styles.subtitle}>Create an account</Text>
       <Text style={styles.instruction}>Enter your email to sign up for this app</Text>
-    <View style={styles.inputContainer}>
-    <View style={styles.icon}>
-    <FontAwesomeIcon icon={farEnvelope} size={20} color="gray" />
-  </View>
-      <TextInput
-        style={styles.input}
-        placeholder="email@domain.com"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+      <View style={styles.inputContainer}>
+        <View style={styles.icon}>
+          <FontAwesomeIcon icon={farEnvelope} size={20} color="gray" />
+        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="email@domain.com"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
       </View>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PasswordScreen')}>
+      {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign up with email</Text>
       </TouchableOpacity>
 
@@ -108,8 +131,12 @@ const SignUpScreen = ({ navigation }) => {
 
       <Text style={styles.termsText}>
         By clicking continue, you agree to our{' '}
-        <Text style={styles.linkText}>Terms of Service</Text> and{' '}
+        <TouchableOpacity  onPress={() => navigation.navigate('Terms')}>
+        <Text style={styles.linkText}>Terms of Service</Text>  
+        </TouchableOpacity> and {' '}
+        <TouchableOpacity  onPress={() => navigation.navigate('Privacy')}>
         <Text style={styles.linkText}>Privacy Policy</Text>
+        </TouchableOpacity>
       </Text>
     </View>
   );
@@ -117,16 +144,38 @@ const SignUpScreen = ({ navigation }) => {
 
 const App = () => {
   return (
-    
-      <Tab.Navigator>
+  <>
+  <View style={styles.content}>
+  <Image source={require('../assets/logo.jpg')} style={styles.logo} />
+  <Text style={styles.title}>REVERIE FACADE</Text>
+  <Text style={styles.orText}>Login or Sign up to access your account</Text>
+  </View>
+    <Tab.Navigator
+    screenOptions={{ 
+      tabBarIndicatorStyle: {
+        backgroundColor: '#0A1366', 
+        height: 4, 
+      },
+      tabBarLabelStyle: {
+        fontSize: 15, 
+      },
+      tabBarStyle: {
+        backgroundColor: '#E7EDF1', 
+      },
+    }}
+  >
         <Tab.Screen name="Login" component={LoginScreen} />
         <Tab.Screen name="Sign Up" component={SignUpScreen} />
       </Tab.Navigator>
-    
+    </>
   );
 };
 
 const styles = StyleSheet.create({
+  content:{
+    alignItems:'center',
+    marginTop:30
+  },
   inputContainer: {
     flexDirection: 'row',
     width: '100%',
@@ -136,7 +185,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: '#fff',
   },
   iconContainer: {
@@ -151,7 +200,7 @@ const styles = StyleSheet.create({
     height: 45,
     paddingHorizontal: 10,
     backgroundColor: '#fff',
-    width:'auto',
+    width: 'auto',
   },
   container: {
     flex: 1,
@@ -164,9 +213,10 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginBottom: 10,
+    borderRadius:20
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1F1F1F',
     marginBottom: 10,
@@ -179,14 +229,14 @@ const styles = StyleSheet.create({
   instruction: {
     fontSize: 14,
     color: '#1F1F1F',
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
   },
   icon: {
     padding: 10,
-    width:'10%',
-    justifyContent:'center',
-    alignItems:'center'
+    width: '10%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
     width: '100%',
@@ -195,7 +245,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   buttonText: {
     color: '#fff',
@@ -209,7 +259,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: '#fff',
   },
   externalButtonText: {
@@ -229,7 +279,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: '#fff',
   },
   googleButtonText: {
@@ -239,12 +289,17 @@ const styles = StyleSheet.create({
   linkText: {
     color: '#4D6175',
     textDecorationLine: 'underline',
+    fontSize:12
   },
   termsText: {
     fontSize: 12,
     color: '#4D6175',
     textAlign: 'center',
     marginTop: 20,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
 });
 

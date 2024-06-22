@@ -14,8 +14,10 @@ import Reminder from './screens/Reminder';
 import Privacy from './screens/PrivacyPolicy';
 import About from './screens/About';
 import Tests from './screens/quiz';
-import Helpline from './screens/Helpline'
-import DreamLog from './screens/DreamLog'
+import Helpline from './screens/Helpline';
+import DreamLog from './screens/DreamLog';
+import Terms from './screens/Terms';
+import PasswordScreen from './screens/passwordScreen';
 
 import JournalLogo from './assets/journallogo';
 import AnalyticsLogo from './assets/analyticslogo';
@@ -156,7 +158,7 @@ export default function App() {
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
           header: ({ route }) => (
-            route.name=== 'Privacy' ||route.name=== 'About' || route.name=== 'Tests' || route.name=== 'Helpline'? <></>:
+            route.name=== 'Privacy' ||route.name=== 'About' || route.name=== 'Tests' || route.name=== 'Helpline' || route.name=== 'PasswordScreen' || route.name=== 'Terms'? <></>:
             <Header title={route.name === 'ReverieFacade' ? 'ReverieFacade' : route.name === 'DreamLog'?'Dream Logs':route.name} />
             
           ),
@@ -169,6 +171,8 @@ export default function App() {
         <Drawer.Screen name="Tests" component={Tests} />
         <Drawer.Screen name="Helpline" component={Helpline} />
         <Drawer.Screen name="DreamLog" component={DreamLog} />
+        <Drawer.Screen name="Terms" component={Terms} />
+        <Drawer.Screen name="PasswordScreen" component={PasswordScreen} />
         
       </Drawer.Navigator>
     </NavigationContainer>

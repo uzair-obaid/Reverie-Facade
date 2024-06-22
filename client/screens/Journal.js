@@ -44,7 +44,6 @@ const MoodJournalScreen = () => {
   const themeOptions = [
     { label: 'Fulfilling Relationships', value: 'relationships' },
     { label: 'Conquering Challenges', value: 'challenges' },
-    { label: 'Escapism & Fantasy', value: 'escapism' },
     { label: 'Fantasy', value: 'fantasy' },
     { label: 'Righting Wrongs', value: 'justice' },
     { label: 'Power & Control', value: 'power' },
