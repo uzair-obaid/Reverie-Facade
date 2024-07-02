@@ -18,7 +18,7 @@ const LoginScreen = ({ navigation }) => {
   
   const handleLogin = async() =>{
     try {
-      const response = await axios.post('http://192.168.0.110:5000/api/auth/login', {email,password});
+      const response = await axios.post('http://192.168.43.227:5000/api/auth/login', {email,password});
       console.log('done');
       // console.log(response);
       const token = response.data.token;
@@ -29,6 +29,8 @@ const LoginScreen = ({ navigation }) => {
       }
       
       await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('dreamLogFlag','1');
+      await AsyncStorage.setItem('analyticFlag','1');
 
     } catch (error) {
       
@@ -169,7 +171,7 @@ const App = () => {
   return (
   <>
   <View style={styles.content}>
-  <Image source={require('../assets/logo.jpg')} style={styles.logo} />
+  <Image source={require('../assets/logo.png')} style={styles.logo} />
   <Text style={styles.title}>REVERIE FACADE</Text>
   <Text style={styles.orText}>Login or Sign up to access your account</Text>
   </View>

@@ -28,7 +28,6 @@ const journalSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-
   
 });
 

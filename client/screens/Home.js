@@ -12,7 +12,7 @@ const Home = () => {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../assets/logo.jpg')}
+        source={require('../assets/logo.png')}
         style={styles.image}
       />
       <Text style={styles.title}>Welcome to the REVERIE FACADE - A Daydream Analyzer</Text>

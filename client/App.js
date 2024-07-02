@@ -10,7 +10,7 @@ import Home from './screens/Home';
 import Journal from './screens/Journal';
 import Analytic from './screens/Analytic';
 import Profile from './screens/auth';
-import Reminder from './screens/Reminder';
+import Tracker from './screens/tracker';
 import Privacy from './screens/PrivacyPolicy';
 import About from './screens/About';
 import Tests from './screens/tests';
@@ -38,23 +38,23 @@ function CustomTabBarIcon({ route, focused, color, size }) {
 
   if (route.name === 'Home') {
     iconComponent = focused
-      ? <HomeLogoFocused style={styles.icon} />
-      : <HomeLogo style={styles.icon} />;
+      ? (<HomeLogoFocused style={styles.icon} />)
+      : (<HomeLogo style={styles.icon} />)
     label = 'Home';
-  } else if (route.name === 'Reminder') {
+  } else if (route.name === 'Tracker') {
     iconComponent = focused
-      ? <ReminderLogoFocused style={styles.icon} />
-      : <ReminderLogo style={styles.icon} />;
-    label = 'Reminder';
+      ? (<ReminderLogoFocused style={styles.icon} />)
+      : (<ReminderLogo style={styles.icon} />)
+    label = 'Tracker';
   } else if (route.name === 'Analytics') {
     iconComponent = focused
-      ? <AnalyticsLogoFocused style={styles.icon} />
-      : <AnalyticsLogo style={styles.icon} />;
+      ? (<AnalyticsLogoFocused style={styles.icon} />)
+      : (<AnalyticsLogo style={styles.icon} />)
     label = 'Analytics';
   } else if (route.name === 'Journal') {
     iconComponent = focused
-      ? <JournalLogoFocused style={styles.icon} />
-      : <JournalLogo style={styles.icon} />;
+      ? (<JournalLogoFocused style={styles.icon} />)
+      : (<JournalLogo style={styles.icon} />)
     label = 'Journal';
   }
 
@@ -86,7 +86,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Reminder" component={Reminder} />
+      <Tab.Screen name="Tracker" component={Tracker} />
       <Tab.Screen name="Journal" component={Journal} />
       <Tab.Screen name="Analytics" component={Analytic} />
     </Tab.Navigator>

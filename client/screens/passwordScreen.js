@@ -27,7 +27,7 @@ const App = () => {
     retrieveEmail();
 
     try {
-        const response = await axios.post('http://192.168.0.110:5000/api/auth/signup', {email,username,password});
+        const response = await axios.post('http://192.168.43.227:5000/api/auth/signup', {email,username,password});
         console.log('done');
         if(response.status===201){
         await AsyncStorage.setItem('userEmail', "");
@@ -49,7 +49,7 @@ const App = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.logoContainer}>
-      <Image source={require('../assets/logo.jpg')} style={styles.logo} />
+      <Image source={require('../assets/logo.png')} style={styles.logo} />
         <Text style={styles.appName}>REVERIE FACADE</Text>
       </View>
       <View style={styles.formContainer}>

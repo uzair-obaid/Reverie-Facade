@@ -74,13 +74,16 @@ const MoodJournalScreen = () => {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.post('http://192.168.0.110:5000/api/journal', dreamData,
+      const response = await axios.post('http://192.168.43.227:5000/api/journal', dreamData,
         {
           headers: {
           Authorization: `Bearer ${token}`
         }
       }
+      
       );
+      await AsyncStorage.setItem('dreamLogFlag','1');
+      await AsyncStorage.setItem('analyticFlag','1');
       resetFields();
     } catch (error) {
       

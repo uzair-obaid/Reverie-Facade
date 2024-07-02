@@ -8,33 +8,41 @@ import axios from 'axios';
 
 const DreamLogsScreen = () => {
   const [dreams, setDreams] = useState([]);
-
+  const fetchDreams = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      console.log(token);
+      const response = await axios.get('http://192.168.43.227:5000/api/journal', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setDreams(response.data.journalEntries);
+    } catch (error) {
+      Alert.alert('Error', 'There was an error fetching the dreams.');
+      console.error(error);
+    }
+  };
+  useEffect(()=>{
+    fetchDreams();
+  },[]);
   useFocusEffect(
     useCallback(() => {
-      const fetchDreams = async () => {
-        try {
-          const token = await AsyncStorage.getItem('token');
-          console.log(token);
-          const response = await axios.get('http://192.168.0.110:5000/api/journal', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          setDreams(response.data.journalEntries);
-        } catch (error) {
-          Alert.alert('Error', 'There was an error fetching the dreams.');
-          console.error(error);
+      
+      const getJournal = async ()=>{
+        const dreamLogFlag = await AsyncStorage.getItem('dreamLogFlag');
+        if(dreamLogFlag === '1'){
+          fetchDreams(); 
+          await AsyncStorage.setItem('dreamLogFlag','0');
         }
-      };
-  
-      fetchDreams(); 
-  
+      }
+      getJournal();
     }, []) 
   );
   
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Dream Logs</Text>
+      
       {dreams.map((dream, index) => (
         <View key={index} style={styles.dreamItem}>
           <Text style={styles.dreamText}>Mood: {dream.mood}</Text>

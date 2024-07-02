@@ -1,4 +1,4 @@
-const Journal = require('../models/journal');
+const Journal = require('../models/Journal');
 const {getUsername} = require('../controllers/getUsername');
 
 const journal = {
@@ -70,6 +70,55 @@ const journal = {
         const journalEntries = await Journal.find({username});
         console.log(journalEntries);
         res.status(200).json({journalEntries});
+    },
+    analytics: async(req,res) =>{
+        const authHeader = req.headers.authorization;
+        
+        if (!authHeader) {
+            return res.status(401).json({ message: 'User not logged in' });
+        }
+
+        const tokenArray = authHeader.split(' ');
+        const token = tokenArray[1];
+        if (!token) {
+            return res.status(401).json({ message: 'User not logged in' });
+        }
+
+        const username = await getUsername(token);
+        
+        if (!username) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+
+        const journalEntries = await Journal.find({username});
+        console.log(journalEntries);
+        if(journalEntries.length === 0){
+            res.status(200).json({journalEntries});
+        }
+        else{
+        function countOccurrences(array, field) {
+            const occurrences = {};
+            array.forEach(record => {
+              const value = record[field];
+              if (value !== undefined) {
+                occurrences[value] = (occurrences[value] || 0) + 1;
+              }
+            });
+            return occurrences;
+          }
+          
+          
+          const fields = ['mood', 'theme', 'time', 'duration', 'taskBefore', 'taskDuring'];
+          
+          const analytics = {};
+          
+          fields.forEach(field => {
+            analytics[field] = countOccurrences(journalEntries, field);
+          });
+          
+        console.log(analytics);
+        res.status(200).json({analytics});
+        }
     }
 };
 

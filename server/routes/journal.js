@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.post('/', journal.save);
 router.get('/', journal.retrieve);
+router.get('/analytics', journal.analytics);
+
 
 
 module.exports = router;
