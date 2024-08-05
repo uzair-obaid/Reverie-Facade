@@ -19,9 +19,6 @@ const journalSchema = new mongoose.Schema({
   duration: {
     type: Number,
   },
-  taskBefore: {
-    type: String,
-  },
   taskDuring: {
     type: String,
   },

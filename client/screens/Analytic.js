@@ -11,7 +11,7 @@ const PieChartComponent = () => {
   const fetchAnalytics = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get('http://192.168.43.227:5000/api/journal/analytics', {
+      const response = await axios.get('http://192.168.0.104:5000/api/journal/analytics', {
         headers: {
           Authorization: `Bearer ${token}`
         }

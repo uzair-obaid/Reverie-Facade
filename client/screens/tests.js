@@ -58,7 +58,7 @@ export default function App() {
     try{
     const token = await AsyncStorage.getItem('token');
     const name = 'Maladaptive Daydreaming Detection and Severity Test'
-    const response = await axios.post('http://192.168.43.227:5000/api/test/',
+    const response = await axios.post('http://192.168.0.104:5000/api/test/',
        {answers,name},
       {
         headers: {

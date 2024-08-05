@@ -28,6 +28,7 @@ import AnalyticsLogoFocused from './assets/analyticslogoFocused';
 import HomeLogoFocused from './assets/homelogoFocused';
 import ReminderLogoFocused from './assets/ReminderlogoFocused';
 import MenuLogo from './assets/menulogo';
+import TaskCompleteScreen from './screens/taskComplete';
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -173,6 +174,7 @@ export default function App() {
         <Drawer.Screen name="DreamLog" component={DreamLog} />
         <Drawer.Screen name="Terms" component={Terms} />
         <Drawer.Screen name="PasswordScreen" component={PasswordScreen} />
+        <Drawer.Screen name="TaskComplete" component={TaskCompleteScreen} />
         
       </Drawer.Navigator>
     </NavigationContainer>

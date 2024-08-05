@@ -9,7 +9,7 @@ const journal = {
         const theme =  dream.theme;
         const time = dream.time;
         const duration =  dream.duration;
-        const taskBefore = dream.workBeforeDream;
+        
         const taskDuring = dream.workDuringDream;
         const description = dream.dreamDescription;
         
@@ -35,7 +35,6 @@ const journal = {
             theme,
             time,
             duration,
-            taskBefore,
             taskDuring,
             description
         });
@@ -108,7 +107,7 @@ const journal = {
           }
           
           
-          const fields = ['mood', 'theme', 'time', 'duration', 'taskBefore', 'taskDuring'];
+          const fields = ['mood', 'theme', 'time', 'taskDuring'];
           
           const analytics = {};
           

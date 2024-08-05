@@ -12,7 +12,7 @@ const DreamLogsScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       console.log(token);
-      const response = await axios.get('http://192.168.43.227:5000/api/journal', {
+      const response = await axios.get('http://192.168.0.104:5000/api/journal', {
         headers: {
           Authorization: `Bearer ${token}`
         }

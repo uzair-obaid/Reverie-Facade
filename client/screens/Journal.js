@@ -9,7 +9,6 @@ const MoodJournalScreen = () => {
   const [selectedMood, setSelectedMood] = useState(null);
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedCurrentWork, setSelectedCurrentWork] = useState(null);
-  const [selectedPreviousWork, setSelectedPreviousWork] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [duration, setDuration] = useState('');
 
@@ -74,7 +73,7 @@ const MoodJournalScreen = () => {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.post('http://192.168.43.227:5000/api/journal', dreamData,
+      const response = await axios.post('http://192.168.0.104:5000/api/journal', dreamData,
         {
           headers: {
           Authorization: `Bearer ${token}`
@@ -143,15 +142,7 @@ const MoodJournalScreen = () => {
           placeholder={{ label: 'Select a task...', value: null }}
         />
       </View>
-      <Text style={styles.subtitle}>What were you doing prior to this task?</Text>
-      <View style={styles.dropdownContainer}>
-        <RNPickerSelect
-          onValueChange={(value) => setSelectedPreviousWork(value)}
-          items={workOptions}
-          style={pickerSelectStyles}
-          placeholder={{ label: 'Select a task...', value: null }}
-        />
-      </View>
+    
       <Text style={styles.subtitle}>Write about your dream</Text>
       <TextInput
         style={styles.textInput}
