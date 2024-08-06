@@ -1,42 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState,useCallback,useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import PasswordScreen from './passwordScreen';
 import axios from 'axios';
-import EyeclosedIcon from'../assets/eyeclosed';
-import EyeopenIcon from'../assets/eyeopen';
-import MailIcon from'../assets/mailIcon';
-import LockIcon from'../assets/lockIcon';
+import { useFocusEffect } from '@react-navigation/native';
+import PasswordScreen from './passwordScreen';
+import EyeclosedIcon from '../assets/eyeclosed';
+import EyeopenIcon from '../assets/eyeopen';
+import MailIcon from '../assets/mailIcon';
+import LockIcon from '../assets/lockIcon';
 
 const Tab = createMaterialTopTabNavigator();
+
+const ProfileScreen = () => {
+  const handleLogout = async() =>{
+    await AsyncStorage.removeItem('token');
+    const token = await AsyncStorage.getItem('token');
+    console.log(token);
+  }
+  return (
+    <View style={styles.profileContainer}>
+      
+
+      {/* Profile Details */}
+      <View style={styles.detailsContainer}>
+        <Text style={styles.label}>Name</Text>
+        <TextInput style={styles.input} placeholder="Name" value="Favour" editable={false} />
+
+        <Text style={styles.label}>Email</Text>
+        <TextInput style={styles.input} placeholder="Email" value="Favourisechap47@gmail.com" editable={false} />
+
+        <Text style={styles.label}>Date of Birth</Text>
+        <View style={styles.dropdown}>
+          <TextInput style={styles.input} placeholder="Date of Birth" value="7/03/2005" editable={false} />
+        </View>
+
+        <Text style={styles.label}>Country/Region</Text>
+        <View style={styles.dropdown}>
+          <TextInput style={styles.input} placeholder="Country/Region" value="India" editable={false} />
+        </View>
+
+        {/* Report a Problem */}
+        <TouchableOpacity style={styles.reportProblemContainer}>
+          <Text style={styles.reportProblemText}>Report a problem</Text>
+        </TouchableOpacity>
+
+        {/* Logout */}
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Text style={styles.logoutButtonText}>Log out</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  
-  const handleLogin = async() =>{
-    try {
-      const response = await axios.post('http://192.168.0.104:5000/api/auth/login', {email,password});
-      console.log('done');
-      // console.log(response);
-      const token = response.data.token;
-      console.log(token);
-      if(response.status === 201){
-        setPassword('');
-      setEmail('');
-      }
-      
-      await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('dreamLogFlag','1');
-      await AsyncStorage.setItem('analyticFlag','1');
 
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://192.168.0.104:5000/api/auth/login', { email, password });
+      const token = response.data.token;
+
+      if (response.status === 201) {
+        setPassword('');
+        setEmail('');
+      }
+
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('dreamLogFlag', '1');
+      await AsyncStorage.setItem('analyticFlag', '1');
+
+      // Navigate to ProfileScreen or perform other actions as needed
     } catch (error) {
-      
       console.error(error);
     }
-  }
+  };
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -44,8 +85,6 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      
-
       <TouchableOpacity style={styles.externalButton}>
         <Text style={styles.externalButtonText}>Login with Google</Text>
       </TouchableOpacity>
@@ -56,7 +95,7 @@ const LoginScreen = ({ navigation }) => {
       <Text style={styles.orText}>or continue with email</Text>
       <View style={styles.inputContainer}>
         <View style={styles.icon}>
-          <MailIcon/>
+          <MailIcon />
         </View>
         <TextInput
           style={styles.input}
@@ -69,7 +108,7 @@ const LoginScreen = ({ navigation }) => {
       </View>
       <View style={styles.inputContainer}>
         <View style={styles.icon}>
-          <LockIcon/>
+          <LockIcon />
         </View>
         <TextInput
           style={styles.input}
@@ -79,14 +118,12 @@ const LoginScreen = ({ navigation }) => {
           secureTextEntry={!showPassword}
         />
         <TouchableOpacity onPress={toggleShowPassword} style={styles.icon}>
-          {showPassword?
-          (<EyeclosedIcon/>):
-          (<EyeopenIcon/>)}
+          {showPassword ? <EyeclosedIcon /> : <EyeopenIcon />}
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText} >Login</Text>
+        <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
       <Text style={styles.linkText}>Forgot password?</Text>
@@ -94,10 +131,11 @@ const LoginScreen = ({ navigation }) => {
       <Text style={styles.termsText}>
         By signing in with an account, you agree to our{' '}
         <TouchableOpacity onPress={() => navigation.navigate('Terms')}>
-        <Text style={styles.linkText}>Terms of Service</Text>  
-        </TouchableOpacity>and{' '}
+          <Text style={styles.linkText}>Terms of Service</Text>
+        </TouchableOpacity>{' '}
+        and{' '}
         <TouchableOpacity onPress={() => navigation.navigate('Privacy')}>
-        <Text style={styles.linkText}>Privacy Policy</Text>
+          <Text style={styles.linkText}>Privacy Policy</Text>
         </TouchableOpacity>
       </Text>
     </View>
@@ -107,13 +145,15 @@ const LoginScreen = ({ navigation }) => {
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+
   const storeEmail = async (email) => {
     try {
-        await AsyncStorage.setItem('userEmail', email);
+      await AsyncStorage.setItem('userEmail', email);
     } catch (error) {
-        console.error('Error storing email:', error);
+      console.error('Error storing email:', error);
     }
-};
+  };
+
   const handleSignUp = () => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailPattern.test(email)) {
@@ -127,12 +167,11 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      
       <Text style={styles.subtitle}>Create an account</Text>
       <Text style={styles.instruction}>Enter your email to sign up for this app</Text>
       <View style={styles.inputContainer}>
         <View style={styles.icon}>
-          <MailIcon/>
+          <MailIcon />
         </View>
         <TextInput
           style={styles.input}
@@ -156,11 +195,12 @@ const SignUpScreen = ({ navigation }) => {
 
       <Text style={styles.termsText}>
         By clicking continue, you agree to our{' '}
-        <TouchableOpacity  onPress={() => navigation.navigate('Terms')}>
-        <Text style={styles.linkText}>Terms of Service</Text>  
-        </TouchableOpacity> and {' '}
-        <TouchableOpacity  onPress={() => navigation.navigate('Privacy')}>
-        <Text style={styles.linkText}>Privacy Policy</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Terms')}>
+          <Text style={styles.linkText}>Terms of Service</Text>
+        </TouchableOpacity>{' '}
+        and{' '}
+        <TouchableOpacity onPress={() => navigation.navigate('Privacy')}>
+          <Text style={styles.linkText}>Privacy Policy</Text>
         </TouchableOpacity>
       </Text>
     </View>
@@ -168,30 +208,57 @@ const SignUpScreen = ({ navigation }) => {
 };
 
 const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const checkLoginStatus = async () => {
+    const token = await AsyncStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      checkLoginStatus();
+    }, [])
+  );
+
+  useEffect(() => {
+    const interval = setInterval(checkLoginStatus, 1000); // Check every second
+
+    return () => clearInterval(interval); // Clean up the interval on component unmount
+  }, []);
+  
+
   return (
-  <>
-  <View style={styles.content}>
-  <Image source={require('../assets/logo.png')} style={styles.logo} />
-  <Text style={styles.title}>REVERIE FACADE</Text>
-  <Text style={styles.orText}>Login or Sign up to access your account</Text>
-  </View>
-    <Tab.Navigator
-    screenOptions={{ 
-      tabBarIndicatorStyle: {
-        backgroundColor: '#0A1366', 
-        height: 4, 
-      },
-      tabBarLabelStyle: {
-        fontSize: 15, 
-      },
-      tabBarStyle: {
-        backgroundColor: '#E7EDF1', 
-      },
-    }}
-  >
+    <>
+      {isLoggedIn ? (
+        <ProfileScreen />
+      ) : (
+        <>
+        <View style={styles.content}>
+          <Image source={require('../assets/logo.png')} style={styles.logo} />
+          <Text style={styles.title}>REVERIE FACADE</Text>
+          <Text style={styles.orText}>Login or Sign up to access your account</Text>
+          </View>
+          <Tab.Navigator
+        screenOptions={{
+          tabBarIndicatorStyle: {
+            backgroundColor: '#0A1366',
+            height: 4,
+          },
+          tabBarLabelStyle: {
+            fontSize: 15,
+          },
+          tabBarStyle: {
+            backgroundColor: '#E7EDF1',
+          },
+        }}
+      >
         <Tab.Screen name="Login" component={LoginScreen} />
         <Tab.Screen name="Sign Up" component={SignUpScreen} />
       </Tab.Navigator>
+        </>
+      )}
+      
     </>
   );
 };
@@ -326,6 +393,80 @@ const styles = StyleSheet.create({
     color: 'red',
     marginBottom: 10,
   },
+  profileContainer: {
+    flex: 1,
+    backgroundColor: '#f2f6fa',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#e0e8f9',
+  },
+  backButton: {
+    fontSize: 24,
+    color: '#000',
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  placeholder: {
+    width: 24, // Placeholder for alignment
+  },
+  profileImageContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  profileImagePlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#dcdcdc',
+  },
+  detailsContainer: {
+    paddingHorizontal: 20,
+  },
+  // label: {
+  //   fontSize: 16,
+  //   fontWeight: 'bold',
+  //   marginVertical: 5,
+  // },
+  // input: {
+  //   height: 40,
+  //   borderColor: '#dcdcdc',
+  //   borderWidth: 1,
+  //   borderRadius: 5,
+  //   paddingHorizontal: 10,
+  //   backgroundColor: '#fff',
+  //   marginBottom: 10,
+  // },
+  dropdown: {
+    marginBottom: 10,
+  },
+  reportProblemContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  reportProblemText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  logoutButton: {
+    marginTop: 30,
+    backgroundColor: '#dcdcdc',
+    paddingVertical: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  logoutButtonText: {
+    fontSize: 16,
+    color: '#000',
+    fontWeight: 'bold',
+  },
 });
-
 export default App;

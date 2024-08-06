@@ -1,177 +1,511 @@
-import React, { useEffect, useState ,useCallback} from 'react';
-import { View, StyleSheet, ScrollView, Text } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-import axios from 'axios';
-import Svg, { G, Path, Text as SvgText } from 'react-native-svg';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { BarChart, PieChart,LineChart } from 'react-native-chart-kit';
+import { Dimensions } from 'react-native';
 
-const PieChartComponent = () => {
-  const [analytics, setAnalytics] = useState(null);
+const screenWidth = Dimensions.get("window").width;
 
-  const fetchAnalytics = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.get('http://192.168.0.104:5000/api/journal/analytics', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      setAnalytics(response.data.analytics);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  useEffect(()=>{
-    fetchAnalytics();
-  },[]);
-  useFocusEffect(
-    useCallback(() => {
+const DailyAnalytics = () => {
+  // Example data
+  const data = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [
       
-      const getJournal = async ()=>{
-        const analyticFlag = await AsyncStorage.getItem('analyticFlag');
-        if(analyticFlag === '1'){
-          fetchAnalytics(); 
-          await AsyncStorage.setItem('analyticFlag','0');
-        }
-      }
-      getJournal();
-    }, []) 
-  );
-
-  const getColor = (index) => {
-    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
-    return colors[index % colors.length];
-  };
-
-  const calculateArcs = (data) => {
-    let totalValue = 0;
-    let chartData = [];
-
-    const keys = Object.keys(data);
-
-    if (keys.length === 1) {
-      
-      const key = keys[0];
-      chartData.push({
-        startAngle: 0,
-        endAngle: 2 * Math.PI - 0.0000003, 
-        color: getColor(0),
-        label: key,
-        value: data[key],
-      });
-    } else {
-      
-      keys.forEach((key) => {
-        totalValue += data[key];
-      });
-
-      let startAngle = 0;
-
-      keys.forEach((key, index) => {
-        const value = data[key];
-        const angle = (value / totalValue) * 2 * Math.PI;
-
-        chartData.push({
-          startAngle,
-          endAngle: startAngle + angle,
-          color: getColor(index),
-          label: key,
-          value,
-        });
-
-        startAngle += angle;
-      });
-    }
-
-    return chartData;
-  };
-
-  const createArc = (d, outerRadius) => {
-    const start = polarToCartesian(outerRadius, d.startAngle);
-    const end = polarToCartesian(outerRadius, d.endAngle);
-    const largeArcFlag = d.endAngle - d.startAngle <= Math.PI ? '0' : '1';
-
-    const path = [
-      `M${start.x},${start.y}`, 
-      `A${outerRadius},${outerRadius} 0 ${largeArcFlag},1 ${end.x},${end.y}`, 
-      'L0,0', 
-      'Z' 
-    ].join(' ');
-
-    return path;
-  };
-
-  const polarToCartesian = (radius, angleInRadians) => {
-    return {
-      x: radius * Math.cos(angleInRadians),
-      y: radius * Math.sin(angleInRadians)
-    };
+      {
+        data: [1000, 4000, 2000, 500, 3000, 1000, 1000],
+        color: (opacity = 1) => `rgba(0, 197, 197, ${opacity})`, // Daydreams
+        strokeWidth: 2,
+      },
+    ],
   };
 
   return (
-    <>
-      {!analytics ? (
-        <View style={styles.placeholderContainer}>
-          <Text>Log Journal</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      
+
+      <View style={styles.chartContainer}>
+        <Text style={styles.title}>Daydreams & Productivity</Text>
+        <LineChart
+          data={data}
+          width={screenWidth - 40}
+          height={220}
+          yAxisLabel=""
+          yAxisSuffix="k"
+          chartConfig={chartConfig}
+          bezier
+          fromZero
+        />
+      </View>
+
+      <View style={styles.legendContainer}>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendColor, { backgroundColor: '#0037ff' }]} />
+          <Text style={styles.legendText}>Productivity & Tasks</Text>
         </View>
-      ) : (
-        <ScrollView style={styles.container}>
-          {analytics && Object.keys(analytics).map((field, fieldIndex) => (
-            <View key={fieldIndex} style={styles.chartContainer}>
-              <Text style={styles.chartTitle}>{field}</Text>
-              <Svg width={300} height={300} viewBox="-150 -150 300 300">
-                <G>
-                  {calculateArcs(analytics[field]).map((d, i) => (
-                    <G key={i}>
-                      <Path d={createArc(d, 150)} fill={d.color} />
-                      <SvgText
-                        x={polarToCartesian(100, (d.startAngle + d.endAngle) / 2).x}
-                        y={polarToCartesian(100, (d.startAngle + d.endAngle) / 2).y}
-                        fill="black"
-                        fontSize="10"
-                        textAnchor="middle"
-                        alignmentBaseline="middle"
-                      >
-                        {d.label}
-                      </SvgText>
-                    </G>
-                  ))}
-                </G>
-              </Svg>
-            </View>
-          ))}
-        </ScrollView>
-      )}
-    </>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendColor, { backgroundColor: '#00c5c5' }]} />
+          <Text style={styles.legendText}>Daydreams</Text>
+        </View>
+      </View>
+
+      <View style={styles.controlContainer}>
+        <TouchableOpacity style={[styles.controlButton, styles.activeControl]}>
+          <Text style={styles.controlText}>Spent</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.controlButton}>
+          <Text style={styles.controlText}>Categories</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.weekdaysContainer}>
+        {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day, index) => (
+          <TouchableOpacity key={index} style={styles.dayButton}>
+            <Text style={styles.dayText}>{day}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </ScrollView>
   );
 };
 
+const chartConfig = {
+  backgroundColor: '#cde7e8',
+  backgroundGradientFrom: '#cde7e8',
+  backgroundGradientTo: '#cde7e8',
+  decimalPlaces: 0,
+  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  style: {
+    borderRadius: 16,
+  },
+  propsForDots: {
+    r: '6',
+    strokeWidth: '2',
+    stroke: '#cde7e8',
+  },
+};
+
+const WeeklyAnalytics = () => {
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      
+
+      <Text style={styles.title}>Daydreams(in mins)</Text>
+
+      <BarChart
+        data={{
+          labels: ['1st Week', '2nd Week', '3rd Week', '4th Week'],
+          datasets: [
+            { data: [10000, 2000, 10000, 8000], color: () => '#007bff' },
+            { data: [6000, 1500, 5000, 4000], color: () => '#28a745' },
+          ],
+        }}
+        width={screenWidth - 40}
+        height={220}
+        yAxisSuffix="k"
+        chartConfig={{
+          backgroundColor: '#f5f5f5',
+          backgroundGradientFrom: '#f5f5f5',
+          backgroundGradientTo: '#f5f5f5',
+          decimalPlaces: 0,
+          color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          style: {
+            borderRadius: 16,
+          },
+          propsForDots: {
+            r: '6',
+            strokeWidth: '2',
+            stroke: '#ffa726',
+          },
+        }}
+        style={styles.chart}
+      />
+
+      <View style={styles.legend}>
+        <Text style={[styles.legendText, { color: '#007bff' }]}>Productivity</Text>
+        <Text style={[styles.legendText, { color: '#28a745' }]}>Daydreams</Text>
+      </View>
+
+      <View style={styles.barContainer}>
+        {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week, index) => (
+          <View key={index} style={styles.bar}>
+            <Text style={styles.weekText}>{week}</Text>
+            <View style={styles.barInner}>
+              <View style={[styles.barSection, { flex: 1, backgroundColor: '#007bff' }]} />
+              <View style={[styles.barSection, { flex: 1, backgroundColor: '#28a745' }]} />
+              <View style={[styles.barSection, { flex: 1, backgroundColor: '#6c757d' }]} />
+            </View>
+            <Text style={styles.barText}>Total Time Spent Daydreaming : 3 Hours</Text>
+          </View>
+        ))}
+      </View>
+
+      <View style={styles.totalTimeContainer}>
+        <Text style={styles.totalTime}>12 Hours</Text>
+        <Text style={styles.totalTimeText}>Total Time Spent Daydreaming Over The Weeks</Text>
+      </View>
+    </ScrollView>
+  );
+};
+
+const MonthlyAnalytics = () => {
+  const maxHeight = 150;
+  const monthList = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const data = [0, 0, 0, 0, 0, 0,0, 0, 271, 0, 0, 0];
+  const maxData = Math.max(...data);
+  const heights = data.map(value => (value / maxData) * maxHeight);
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      
+      <View style={[{width:screenWidth - 30},styles.barChartContainer]}>
+      <Text style={styles.header}>Daydreams (in mins)</Text>
+        <View style={[{ height: maxHeight + 30 }, styles.barChart]}>
+          <Text style={[{bottom:maxHeight/5*5,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*5)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
+          <Text style={[{bottom:maxHeight/5*4,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*4)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
+          <Text style={[{bottom:maxHeight/5*3,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*3)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
+          <Text style={[{bottom:maxHeight/5*2,transform: [{ translateX: 0 }, { translateY: 6}],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*2)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
+          <Text style={[{bottom:maxHeight/5*1,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*1)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
+          {heights.map((height, index) => (
+            <View
+              key={index}
+              style={{
+                height,
+                backgroundColor: "blue",
+                marginLeft: 9,
+                marginRight: 6,
+                width: 6,
+                
+                marginTop:"auto",
+                
+                borderTopLeftRadius:5,
+                borderTopRightRadius:5
+              }}
+            >
+            </View>
+            
+          ))}
+          
+
+        </View>
+        <View style={styles.labelContainer}>
+    {monthList.map((month, index) => (
+      <Text
+        key={index}
+        style={{
+          marginLeft: 4.5,
+          marginRight: .6,
+          width: 16,
+          fontSize: 10, 
+          textAlign: 'center',
+          fontWeight:"ultralight",
+          marginTop:1
+        }}
+      >
+        {month}
+      </Text>
+    ))}
+  </View>
+      </View>
+      <PieChart
+        data={[
+          { name: 'Tasks without daydreams', population: 50.84, color: '#4682b4' },
+          { name: 'Daydreams (anytime apart from tasks)', population: 10.33, color: '#00fa9a' },
+          { name: 'Others', population: 2.51, color: '#dda0dd' },
+          { name: 'Daydreams during tasks', population: 1.47, color: '#7b68ee' },
+          { name: 'Frequent emotion', population: 4.68, color: '#4b0082' },
+          { name: 'Frequent daydream theme', population: 4.19, color: '#b0e0e6' }
+        ]}
+        width={screenWidth - 30}
+        height={220}
+        chartConfig={{
+          backgroundColor: '#fff',
+          color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+        }}
+        accessor="population"
+        backgroundColor="transparent"
+        paddingLeft="15"
+        style={styles.chart}
+      />
+      <Text style={styles.reductionText}>30% Reduction of daydreaming compared to previous month</Text>
+    </ScrollView>
+  );
+}
+
+const AnalyticsScreen = () => {
+  const [currentScreen, setCurrentScreen] = useState("Monthly");
+  return (
+    <View style={styles.body}>
+      <View style={[{width:screenWidth - 30},styles.mainContainer]}>
+        <TouchableOpacity onPress={() => { setCurrentScreen("Daily") }} style={currentScreen === "Daily" ? styles.analyticBtnFocused : styles.analyticBtnUnfocused}>
+          <Text style={currentScreen === "Daily" ? styles.analyticBtnText : ""}>Daily</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { setCurrentScreen("Weekly") }} style={currentScreen === "Weekly" ? styles.analyticBtnFocused : styles.analyticBtnUnfocused}>
+          <Text style={currentScreen === "Weekly" ? styles.analyticBtnText : ""}>Weekly</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { setCurrentScreen("Monthly") }} style={currentScreen === "Monthly" ? styles.analyticBtnFocused : styles.analyticBtnUnfocused}>
+          <Text style={currentScreen === "Monthly" ? styles.analyticBtnText : ""}>Monthly</Text>
+        </TouchableOpacity>
+      </View>
+      {currentScreen === "Daily" ? (<DailyAnalytics />) : currentScreen === "Weekly" ? (<WeeklyAnalytics />) : (<MonthlyAnalytics />)}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  body: {
+    backgroundColor: "#E7EDF1",
+    minHeight: "100%",
+  },
+  mainContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    borderRadius: 40,
+    marginTop: 20,
+    height: 60,
+    backgroundColor: "white",
+    padding: 5,
+    paddingLeft: 30,
+    paddingRight: 30,
+    marginLeft:"auto",
+    marginRight:"auto",
+  },
+  analyticBtnFocused: {
+    backgroundColor: "#4D6175",
+    borderRadius: 20,
+    height: "100%",
+    width: "34%",
+    textAlign: "center",
+    alignContent: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white"
+  },
+  analyticBtnUnfocused: {
+    borderRadius: 20,
+    height: "100%",
+    width: "34%",
+    textAlign: "center",
+    alignContent: "center",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  analyticBtnText: {
+    color: "white"
+  },
   container: {
-    flex: 1,
-    backgroundColor: '#E7EDF1',
-  },
-  placeholderContainer: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f0f4f7',
+    flexGrow: 1,
   },
-  chartContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  chartTitle: {
+  header: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  subHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
+  chart: {
+    marginVertical: 10,
+    borderRadius: 16,
+  },
+  reductionText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#333',
+  },
+  barChartContainer:{
+    backgroundColor:"#fff",
+    padding:20,
+    borderRadius:20
+    
+  },
+  barChart:{
+    backgroundColor:"white",
+    flexDirection:"row",
+    borderBottomWidth:1,
+    borderBottomColor:"#222",
+    width:"100%",
+    marginLeft:"auto",
+    marginRight:"auto",
+    justifyContent:"center",
+    textAlign:"center",
+    borderTopLeftRadius:20,
+    borderTopRightRadius:20,
+    paddingTop:30,
+    position:"relative"
+  },
+  labelContainer:{
+    backgroundColor:"white",
+    justifyContent:"center",
+    flexDirection:"row",
+    width:"100%",
+    marginLeft:"auto",
+    marginRight:"auto",
+    borderBottomLeftRadius:20,
+    borderBottomRightRadius:20,
+    paddingBottom:10
+  },
+  scaleBar:{
+    position:"absolute",
+    left:0,
+    color:"grey",
+    
+    
+  },
+  tabBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  tab: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    marginHorizontal: 5,
+  },
+  activeTab: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#9DA3E1',
+    borderRadius: 20,
+    marginHorizontal: 5,
+  },
+  tabText: {
+    color: '#000',
+  },
+  activeTabText: {
+    color: '#fff',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  chart: {
+    marginVertical: 8,
+    borderRadius: 16,
+  },
+  legend: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  legendText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  barContainer: {
+    marginTop: 20,
+  },
+  bar: {
+    marginBottom: 10,
+  },
+  weekText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  barInner: {
+    flexDirection: 'row',
+    height: 20,
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  barSection: {
+    height: '100%',
+  },
+  barText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#6c757d',
+  },
+  totalTimeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  totalTime: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginRight: 5,
+  },
+  totalTimeText: {
+    fontSize: 14,
+    color: '#6c757d',
+  },
+  chartContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  legendContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  legendColor: {
+    width: 15,
+    height: 15,
+    marginRight: 5,
+  },
+  legendText: {
+    fontSize: 14,
+  },
+  controlContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  controlButton: {
+    flex: 1,
+    paddingVertical: 10,
+    backgroundColor: '#6f7e8a',
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  activeControl: {
+    backgroundColor: '#fff',
+    color: '#6f7e8a',
+  },
+  controlText: {
+    color: '#fff',
+  },
+  weekdaysContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dayButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    backgroundColor: '#6f7e8a',
+    marginHorizontal: 5,
+  },
+  dayText: {
+    color: '#fff',
+  },
+  
 });
 
-export default function App() {
-  return (
-    <View style={{ flex: 1 }}>
-      <PieChartComponent />
-    </View>
-  );
-}
+export default AnalyticsScreen;
