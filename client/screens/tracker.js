@@ -95,13 +95,15 @@ const FocusTimer = () => {
         title: message,
         body: message,
       },
-      trigger: null,
+      trigger: {
+        seconds: 1, // Triggers immediately for testing; adjust as needed
+      },
     });
   };
 
   const handleSetAlarms = () => {
     if (frequency && enableAlarms) {
-      const span = parseInt(attentionSpan, 10);
+      const span = parseInt(frequency, 10);
       const duration = parseInt(sleepTime- wakeUpTime, 10);
 
       for (let i = 0; i < duration / span; i++) {
@@ -117,7 +119,7 @@ const FocusTimer = () => {
         });
       }
       setEditAlarms(false);
-      Alert.alert('Alarms Set', `Alarms scheduled based on your attention span of ${attentionSpan} minutes.`);
+      Alert.alert('Alarms Set', `Alarms scheduled based on your attention span of ${frequency} minutes.`);
     } else {
       Alert.alert('Error', 'Please enable alarms, set your attention span, and duration for the day.');
     }

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import { Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Arrow from '../assets/leftArrow';
 import BackGr from '../assets/cloudIcon';
-
+// import TestSummary from './testSummaryScreen';
+const screenWidth = Dimensions.get("window").width;
 const questions = [
   { id: '1', question: 'How often do you find yourself daydreaming?' },
   { id: '2', question: 'Are your daydreams vivid and immersive, often lasting a long time?' },
@@ -58,7 +60,7 @@ export default function App() {
     try{
     const token = await AsyncStorage.getItem('token');
     const name = 'Maladaptive Daydreaming Detection and Severity Test'
-    const response = await axios.post('http://192.168.0.104:5000/api/test/',
+    const response = await axios.post('http://192.168.43.227:5000/api/test/',
        {answers,name},
       {
         headers: {
@@ -66,6 +68,8 @@ export default function App() {
       }
     }
     );
+    setAnswers(Array(questions.length).fill(null));
+    navigation.navigate('TestSummaryScreen');
     }
     catch(error){
       console.log(error);
@@ -76,7 +80,7 @@ export default function App() {
     return (
       <>
         <View style={styles.graphicContainer}>
-          <BackGr />
+          <BackGr screenwidth={screenWidth} />
           <TouchableOpacity style={styles.navigateHomeArrow} onPress={() => { navigation.navigate('Home') }}>
             <Arrow color='#FFFFFF' />
           </TouchableOpacity>
@@ -204,6 +208,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0, 
     left: 0, 
-    padding: 10, 
+    padding: 20, 
   },
 });

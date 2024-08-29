@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     trim: true, 
     lowercase: true 
   },
+
   username: {
     type: String,
     required: true,
@@ -20,6 +21,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  age:{
+    type:Number,
+  },
+  region:{
+    type:String
+  }
   
 });
 

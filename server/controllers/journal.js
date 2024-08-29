@@ -90,34 +90,51 @@ const journal = {
         }
 
         const journalEntries = await Journal.find({username});
-        console.log(journalEntries);
-        if(journalEntries.length === 0){
-            res.status(200).json({journalEntries});
+      
+        res.status(200).json({journalEntries});
+        
+    },
+    getTodayDreamCount: async(req,res) =>{
+        console.log("6");
+       try{
+        const authHeader = req.headers.authorization;
+        
+        if (!authHeader) {
+            return res.status(401).json({ message: 'User not logged in' });
         }
-        else{
-        function countOccurrences(array, field) {
-            const occurrences = {};
-            array.forEach(record => {
-              const value = record[field];
-              if (value !== undefined) {
-                occurrences[value] = (occurrences[value] || 0) + 1;
-              }
-            });
-            return occurrences;
-          }
-          
-          
-          const fields = ['mood', 'theme', 'time', 'taskDuring'];
-          
-          const analytics = {};
-          
-          fields.forEach(field => {
-            analytics[field] = countOccurrences(journalEntries, field);
-          });
-          
-        console.log(analytics);
-        res.status(200).json({analytics});
+
+        const tokenArray = authHeader.split(' ');
+        const token = tokenArray[1];
+        if (!token) {
+            return res.status(401).json({ message: 'User not logged in' });
         }
+
+        const username = await getUsername(token);
+        
+        if (!username) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+        const today = new Date();
+
+    const startOfToday = new Date(today.setHours(0, 0, 0, 0));
+
+
+    const endOfToday = new Date(today.setHours(23, 59, 59, 999));
+
+        const dreams = await Journal.find({
+            createdAt: {
+                $gte: startOfToday,
+                $lte: endOfToday,
+              },
+        });
+        const count = dreams.length;
+        console.log(dreams,count)
+        res.status(200).json({count})
+       }
+       catch(error){
+        console.log(error);
+        res.status(500).json({message :"Internal Server Error"});
+       }
     }
 };
 

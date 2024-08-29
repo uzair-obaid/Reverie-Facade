@@ -22,10 +22,10 @@ function PrivacyPolicy() {
         <Text style={styles.text}>
           At Reverie Facade, we prioritize your privacy and are committed to protecting your personal information. Our privacy policy outlines how we collect, use, and safeguard your data while you use our app. We ensure that your information is handled with the utmost care and in compliance with all relevant regulations. To learn more about our practices, please visit our full Privacy Policy page.
           {'\n'}
-          Read our full Privacy Policy at {'\n'}
+          {/* Read our full Privacy Policy at {'\n'}
           <TouchableOpacity onPress={() => openURL('https://www.reveriefacadeapp.com/privacy')}>
             <Text  style={styles.link}>www.reveriefacadeapp.com/privacy</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </Text>
     </View>
     </View>

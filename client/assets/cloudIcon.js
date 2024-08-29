@@ -1,14 +1,14 @@
 import * as React from "react";
 import Svg, { Rect, Path, Defs } from "react-native-svg";
-const SVGComponent = (props) => (
+const SVGComponent = ({screenwidth}) => (
 
   <Svg
-    width={346}
-    height={303}
+    width={screenwidth - 20}
+    height={screenwidth -40}
     viewBox="0 0 346 303"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    {...props}
+    // {...props}
   >
     <Rect width={346} height={193} rx={30} fill="#2E456F" />
     <Rect width={65} height={57} transform="translate(134 68)" fill="#2E456F" />

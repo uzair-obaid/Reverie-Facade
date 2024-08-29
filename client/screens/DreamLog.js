@@ -1,57 +1,70 @@
-
-
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 
 const DreamLogsScreen = () => {
   const [dreams, setDreams] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const fetchDreams = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       console.log(token);
-      const response = await axios.get('http://192.168.0.104:5000/api/journal', {
+      const response = await axios.get('http://192.168.43.227:5000/api/journal', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
       setDreams(response.data.journalEntries);
     } catch (error) {
-      Alert.alert('Error', 'There was an error fetching the dreams.');
-      console.error(error);
+      console.log(error);
     }
   };
-  useEffect(()=>{
+
+  useEffect(() => {
     fetchDreams();
-  },[]);
-  useFocusEffect(
-    useCallback(() => {
-      
-      const getJournal = async ()=>{
-        const dreamLogFlag = await AsyncStorage.getItem('dreamLogFlag');
-        if(dreamLogFlag === '1'){
-          fetchDreams(); 
-          await AsyncStorage.setItem('dreamLogFlag','0');
-        }
-      }
-      getJournal();
-    }, []) 
-  );
-  
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchDreams();  // Refresh the data
+    setRefreshing(false);
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      
-      {dreams.map((dream, index) => (
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      {dreams && dreams.map((dream, index) => (
         <View key={index} style={styles.dreamItem}>
-          <Text style={styles.dreamText}>Mood: {dream.mood}</Text>
-          <Text style={styles.dreamText}>Theme: {dream.theme}</Text>
-          <Text style={styles.dreamText}>Time: {dream.time}</Text>
-          <Text style={styles.dreamText}>Duration: {dream.duration} minutes</Text>
-          <Text style={styles.dreamText}>Task Before Dream: {dream.taskBefore}</Text>
-          <Text style={styles.dreamText}>Task During Dream: {dream.taskDuring}</Text>
-          <Text style={styles.dreamText}>Description: {dream.description}</Text>
+          <View style={styles.dreamTextContainer}>
+            <Text style={styles.dreamText}>Mood: </Text>
+            <Text style={styles.dreamValueText}>{dream.mood}</Text>
+          </View>
+          <View style={styles.dreamTextContainer}>
+            <Text style={styles.dreamText}>Theme: </Text>
+            <Text style={styles.dreamValueText}>{dream.theme}</Text>
+          </View>
+          <View style={styles.dreamTextContainer}>
+            <Text style={styles.dreamText}>Time: </Text>
+            <Text style={styles.dreamValueText}>{dream.time}</Text>
+          </View>
+          <View style={styles.dreamTextContainer}>
+            <Text style={styles.dreamText}>Duration: </Text>
+            <Text style={styles.dreamValueText}>{dream.duration} minutes</Text>
+          </View>
+          <View style={styles.dreamTextContainer}>
+            <Text style={styles.dreamText}>Task: </Text>
+            <Text style={styles.dreamValueText}>{dream.taskDuring}</Text>
+          </View>
+          <View style={styles.dreamTextContainer}>
+            <Text style={styles.dreamText}>Description: </Text>
+            <Text style={[{ flexShrink: 1 }, styles.dreamValueText]}>{dream.description}</Text>
+          </View>
         </View>
       ))}
     </ScrollView>
@@ -66,15 +79,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#E7EDF1',
     padding: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1F1F1F',
-    marginBottom: 10,
-  },
   dreamItem: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#ABCACF',
     padding: 20,
     borderRadius: 10,
     marginBottom: 20,
@@ -83,11 +90,21 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 5 },
   },
-  dreamText: {
-    fontSize: 16,
-    color: '#1F1F1F',
-    marginBottom: 5,
+  dreamTextContainer: {
+    flexDirection: "row"
   },
+  dreamText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: '#2B303C',
+    marginBottom: 5,
+    width: "40%"
+  },
+  dreamValueText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: "300",
+  }
 });
 
 export default DreamLogsScreen;

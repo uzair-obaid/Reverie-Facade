@@ -25,6 +25,10 @@ const journalSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  date:{
+    type:Date,
+    default:Date.now
+  }
   
 });
 

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity ,RefreshControl} from 'react-native';
 import { BarChart, PieChart,LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import RNPickerSelect from 'react-native-picker-select';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get("window").width;
 
-const DailyAnalytics = () => {
-  // Example data
+const DailyAnalytics = ({data1}) => {
   const data = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     datasets: [
@@ -24,7 +26,7 @@ const DailyAnalytics = () => {
       
 
       <View style={styles.chartContainer}>
-        <Text style={styles.title}>Daydreams & Productivity</Text>
+        <Text style={styles.title}>Daydreams (in mins)</Text>
         <LineChart
           data={data}
           width={screenWidth - 40}
@@ -37,33 +39,11 @@ const DailyAnalytics = () => {
         />
       </View>
 
-      <View style={styles.legendContainer}>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendColor, { backgroundColor: '#0037ff' }]} />
-          <Text style={styles.legendText}>Productivity & Tasks</Text>
-        </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendColor, { backgroundColor: '#00c5c5' }]} />
-          <Text style={styles.legendText}>Daydreams</Text>
-        </View>
-      </View>
+      
 
-      <View style={styles.controlContainer}>
-        <TouchableOpacity style={[styles.controlButton, styles.activeControl]}>
-          <Text style={styles.controlText}>Spent</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.controlButton}>
-          <Text style={styles.controlText}>Categories</Text>
-        </TouchableOpacity>
-      </View>
+      
 
-      <View style={styles.weekdaysContainer}>
-        {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day, index) => (
-          <TouchableOpacity key={index} style={styles.dayButton}>
-            <Text style={styles.dayText}>{day}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      
     </ScrollView>
   );
 };
@@ -85,7 +65,19 @@ const chartConfig = {
   },
 };
 
-const WeeklyAnalytics = () => {
+const WeeklyAnalytics = ({data1}) => {
+  console.log(data1);
+  let weekData = Array(4).fill(0);
+  const weekLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4']
+  for (let i = 0; i < weekLabels.length; i++) {
+    let week = weekLabels[i];
+    if (data1[week]) {
+      weekData[i] = data1[week].totalDuration; // Set the duration at the corresponding index
+    }
+  }
+
+  // data1.map
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       
@@ -94,10 +86,10 @@ const WeeklyAnalytics = () => {
 
       <BarChart
         data={{
-          labels: ['1st Week', '2nd Week', '3rd Week', '4th Week'],
+          labels: weekLabels,
           datasets: [
-            { data: [10000, 2000, 10000, 8000], color: () => '#007bff' },
-            { data: [6000, 1500, 5000, 4000], color: () => '#28a745' },
+            { data:weekData, color: () => '#007bff' },
+            // { data: [6000, 1500, 5000, 4000], color: () => '#28a745' },
           ],
         }}
         width={screenWidth - 40}
@@ -149,12 +141,88 @@ const WeeklyAnalytics = () => {
   );
 };
 
-const MonthlyAnalytics = () => {
+const MonthlyAnalytics = ({data}) => {
+  console.log(data);
   const maxHeight = 150;
-  const monthList = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const data = [0, 0, 0, 0, 0, 0,0, 0, 271, 0, 0, 0];
-  const maxData = Math.max(...data);
-  const heights = data.map(value => (value / maxData) * maxHeight);
+  const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
+
+  const monthList = [
+    { label: "Jan", value: "1" },
+    { label: "Feb", value: "2" },
+    { label: "Mar", value: "3" },
+    { label: "Apr", value: "4" },
+    { label: "May", value: "5" },
+    { label: "Jun", value: "6" },
+    { label: "Jul", value: "7" },
+    { label: "Aug", value: "8" },
+    { label: "Sep", value: "9" },
+    { label: "Oct", value: "10" },
+    { label: "Nov", value: "11" },
+    { label: "Dec", value: "12" }
+  ];
+// const monthList = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+let monthlyData = Array(12).fill(0);
+  for (let month = 1; month <= 12; month++) {
+    const monthString = month.toString();
+    
+    if(data[monthString]){
+      for(i=0;i<data[monthString].length;i++){
+     
+        monthlyData[monthString-1] += data[monthString][i].duration; 
+      }
+    }
+  }
+  
+  
+  const monthlyValues = Object.values(monthlyData);
+  
+  const maxData = Math.max(...monthlyValues);
+  
+  let heights = Array(12).fill(0);  
+
+  monthlyValues.forEach((value, index) => {
+    if (value !== 0) {
+      heights[index] = (value / maxData) * maxHeight;
+    } else {
+      heights[index] = 0;
+    }
+  });
+  const themeCounts = {};
+  if (data[selectedMonth]) {
+    data[selectedMonth].forEach(item => {
+      const theme = item["theme"] || "Other";
+      // console.log(theme);
+      themeCounts[theme] = (themeCounts[theme] || 0) + 1;
+    });
+  }
+  const colors = [
+    "#DC143C", // Crimson
+    "#008080", // Teal
+    "#FA8072", // Salmon
+    "#808000", // Olive
+    "#40E0D0", // Turquoise
+    "#CCCCFF", // Periwinkle
+    "#FF7F50", // Coral
+    "#E6E6FA", // Lavender
+    "#6A5ACD", // SlateBlue
+    "#E0B0FF", // Mauve
+    "#7FFF00", // Chartreuse
+    "#FFBF00", // Amber
+    // "#F08080"  // LightCoral
+];
+
+
+  const pieChartData = Object.keys(themeCounts).map((theme, index) => ({
+    name: theme,
+    population: themeCounts[theme],
+    color: colors[index % colors.length], 
+    legendFontColor: "#7F7F7F",
+    legendFontSize: 15,
+}));
+
+  
+  
+  // const heights = monthlyData.map(value =>{value !== 0?(value / maxData) * maxHeight:0});
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -162,11 +230,11 @@ const MonthlyAnalytics = () => {
       <View style={[{width:screenWidth - 30},styles.barChartContainer]}>
       <Text style={styles.header}>Daydreams (in mins)</Text>
         <View style={[{ height: maxHeight + 30 }, styles.barChart]}>
-          <Text style={[{bottom:maxHeight/5*5,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*5)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
-          <Text style={[{bottom:maxHeight/5*4,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*4)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
-          <Text style={[{bottom:maxHeight/5*3,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*3)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
-          <Text style={[{bottom:maxHeight/5*2,transform: [{ translateX: 0 }, { translateY: 6}],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*2)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
-          <Text style={[{bottom:maxHeight/5*1,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*1)}  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
+          <Text style={[{bottom:maxHeight/5*5,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*5)}  {' -'.repeat(Math.floor(screenWidth / 7.5))}</Text>
+          <Text style={[{bottom:maxHeight/5*4,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*4)}  {' -'.repeat(Math.floor(screenWidth / 7.5))}</Text>
+          <Text style={[{bottom:maxHeight/5*3,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*3)}  {' -'.repeat(Math.floor(screenWidth / 7.5))}</Text>
+          <Text style={[{bottom:maxHeight/5*2,transform: [{ translateX: 0 }, { translateY: 6}],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*2)}  {' -'.repeat(Math.floor(screenWidth / 7.5))}</Text>
+          <Text style={[{bottom:maxHeight/5*1,transform: [{ translateX: 0 }, { translateY: 6 }],fontSize:10},styles.scaleBar]}>{Math.round(maxData/5*1)}  {' -'.repeat(Math.floor(screenWidth / 7.5))}</Text>
           {heights.map((height, index) => (
             <View
               key={index}
@@ -197,26 +265,27 @@ const MonthlyAnalytics = () => {
           marginLeft: 4.5,
           marginRight: .6,
           width: 16,
-          fontSize: 10, 
+          fontSize: 8.3, 
           textAlign: 'center',
           fontWeight:"ultralight",
           marginTop:1
         }}
       >
-        {month}
+        {month.label}
       </Text>
     ))}
   </View>
       </View>
+      
+      <Text>Select Month:</Text>
+      <RNPickerSelect
+        value={selectedMonth}
+        // style={pickerSelectStyles}
+        onValueChange={(itemValue) => setSelectedMonth(itemValue)}
+        items={monthList}
+      />
       <PieChart
-        data={[
-          { name: 'Tasks without daydreams', population: 50.84, color: '#4682b4' },
-          { name: 'Daydreams (anytime apart from tasks)', population: 10.33, color: '#00fa9a' },
-          { name: 'Others', population: 2.51, color: '#dda0dd' },
-          { name: 'Daydreams during tasks', population: 1.47, color: '#7b68ee' },
-          { name: 'Frequent emotion', population: 4.68, color: '#4b0082' },
-          { name: 'Frequent daydream theme', population: 4.19, color: '#b0e0e6' }
-        ]}
+        data={pieChartData}
         width={screenWidth - 30}
         height={220}
         chartConfig={{
@@ -235,6 +304,119 @@ const MonthlyAnalytics = () => {
 
 const AnalyticsScreen = () => {
   const [currentScreen, setCurrentScreen] = useState("Monthly");
+  const [data, setData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState({});
+  const [weeklyData, setWeeklyData] = useState({});
+  const [dailyData, setDailyData] = useState({});
+  const [refreshing, setRefreshing] = useState(false);
+
+  
+  const getData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get('http://192.168.43.227:5000/api/journal/analytics', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      // console.log(response.data);
+      setData(response.data.journalEntries);
+      // console.log(response.data.journalEntries);
+    } catch (error) {
+      console.log('Error fetching data:', error);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getData();
+    computeMonthlyAnalytics();
+    computeDailyAnalytics();
+    computeWeeklyAnalytics();
+    setRefreshing(false);
+  };
+
+  const computeMonthlyAnalytics = () => {
+    // console.log(data);
+    const groupedData = data.reduce((acc, entry) => {
+      const month = new Date(entry.date).getMonth() + 1; 
+      if (!acc[month]) {
+        acc[month] = [];
+      }
+      acc[month].push(entry);
+      return acc;
+    }, {});
+    // console.log(groupedData);
+    setMonthlyData(groupedData);
+  };
+
+  const computeDailyAnalytics = () => {
+    const days = {};
+    const today = new Date();
+  
+    // Calculate the start of the week (Monday)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1);
+  
+    data.forEach(entry => {
+      const entryDate = new Date(entry.date);
+  
+      // Check if the entry is within the ongoing week
+      if (entryDate >= startOfWeek && entryDate <= today) {
+        const dayKey = entryDate.toLocaleDateString('en-US', { weekday: 'long' });
+  
+        if (!days[dayKey]) {
+          days[dayKey] = [];
+        }
+  
+        days[dayKey].push(entry);
+      }
+    });
+  
+    setDailyData(days);
+  };
+  
+
+  const computeWeeklyAnalytics = () => {
+    const weeks = {};
+  
+    data.forEach(entry => {
+      const entryDate = new Date(entry.date);
+      const entryMonth = entryDate.getMonth() + 1;
+  
+      if (entryMonth === 8) {
+        const startOfWeek = new Date(entryDate);
+        startOfWeek.setDate(entryDate.getDate() - entryDate.getDay() + 1);
+  
+        const weekNumber = Math.ceil(startOfWeek.getDate() / 7);
+        const weekKey = `Week ${weekNumber}`;
+  
+        if (!weeks[weekKey]) {
+          weeks[weekKey] = {
+            totalDuration: 0,
+            entries: []
+          };
+        }
+  
+        const duration = entry.duration; // Assuming entry has a `duration` field in minutes
+        weeks[weekKey].totalDuration += duration;
+        weeks[weekKey].entries.push(entry);
+      }
+    });
+  
+    setWeeklyData(weeks);
+  };
+  
+  
+
+  useEffect(() => {
+    getData();
+    computeMonthlyAnalytics();
+    computeDailyAnalytics();
+    computeWeeklyAnalytics();
+  }, []);
+  
+
   return (
     <View style={styles.body}>
       <View style={[{width:screenWidth - 30},styles.mainContainer]}>
@@ -248,8 +430,21 @@ const AnalyticsScreen = () => {
           <Text style={currentScreen === "Monthly" ? styles.analyticBtnText : ""}>Monthly</Text>
         </TouchableOpacity>
       </View>
-      {currentScreen === "Daily" ? (<DailyAnalytics />) : currentScreen === "Weekly" ? (<WeeklyAnalytics />) : (<MonthlyAnalytics />)}
-    </View>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {currentScreen === "Daily" ? (
+          <DailyAnalytics />
+        ) : currentScreen === "Weekly" ? (
+          <WeeklyAnalytics data1={weeklyData}/>
+        ) : (
+          <MonthlyAnalytics data={monthlyData} />
+        )}
+      </ScrollView>
+      </View>
   );
 }
 
@@ -297,9 +492,12 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: 'center',
-    padding: 20,
+    paddingTop: 20,
     backgroundColor: '#f0f4f7',
     flexGrow: 1,
+    margin:0,
+    padding:0
+    
   },
   header: {
     fontSize: 18,
@@ -448,6 +646,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
+    // alignSelf:"center",
     marginBottom: 20,
   },
   title: {

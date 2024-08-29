@@ -1,60 +1,76 @@
 import React, { useState } from 'react';
-import { SafeAreaView,View,Text,TextInput,TouchableOpacity,StyleSheet,Image } from 'react-native';
+import { SafeAreaView, View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ExitLogo from '../assets/exitLogo';
 import axios from 'axios';
 
 const App = () => {
-  
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [age, setAge] = useState('');
+  const [region, setRegion] = useState('');
   const navigation = useNavigation();
-  
+
   const retrieveEmail = async () => {
     try {
-        const email = await AsyncStorage.getItem('userEmail');
-        if (email !== null) {
-            setEmail(email);
-        }
+      const email = await AsyncStorage.getItem('userEmail');
+      if (email !== null) {
+        setEmail(email);
+      }
     } catch (error) {
-        console.error('Error retrieving email:', error);
+      console.error('Error retrieving email:', error);
     }
-};
-  const handleSignUp = async() => {
+  };
+
+  const handleSignUp = async () => {
     retrieveEmail();
 
+    if (!username || !password || password !== confirmPassword) {
+      alert('Please enter a valid username and password.');
+      return;
+    }
+
     try {
-        const response = await axios.post('http://192.168.0.104:5000/api/auth/signup', {email,username,password});
-        console.log('done');
-        if(response.status===201){
+      const response = await axios.post('http://192.168.43.227:5000/api/auth/signup', {
+        email,
+        username,
+        password,
+        age: age || null, // Send null if age is empty
+        region: region || null // Send null if region is empty
+      });
+      console.log('done');
+      if (response.status === 201) {
         await AsyncStorage.setItem('userEmail', "");
         setPassword('');
         setConfirmPassword('');
-        setUsername(''); }
-      } catch (error) {
-        
-        console.error(error);
+        setUsername('');
+        setAge('');
+        setRegion('');
+        navigation.navigate('Tests')
       }
+    } catch (error) {
+      console.error(error);
+    }
     console.log('Sign up pressed');
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backButtonContainer}>
-      <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('Profile')}>
+        <TouchableOpacity style={styles.icon} onPress={() => navigation.navigate('Profile')}>
           <ExitLogo />
         </TouchableOpacity>
       </View>
       <View style={styles.logoContainer}>
-      <Image source={require('../assets/logo.png')} style={styles.logo} />
+        <Image source={require('../assets/logo.png')} style={styles.logo} />
         <Text style={styles.appName}>REVERIE FACADE</Text>
       </View>
       <View style={styles.formContainer}>
         <Text style={styles.createAccountText}>Create an account</Text>
-        <Text style={styles.instructionsText}>Enter password Username & Password to sign up</Text>
+        <Text style={styles.instructionsText}>Enter Password and other necessary details to sign up</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter Username"
@@ -75,13 +91,25 @@ const App = () => {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
         />
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Age (optional)"
+          keyboardType="numeric"
+          value={age}
+          onChangeText={setAge}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Country/Region (optional)"
+          value={region}
+          onChangeText={setRegion}
+        />
         <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
           <Text style={styles.signUpButtonText}>Sign up</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.footerText}>
         By clicking continue, you agree to our{' '}
-        <Text style={styles.linkText}>Terms of Service</Text> and{' '}
         <Text style={styles.linkText}>Privacy Policy</Text>
       </Text>
     </SafeAreaView>
@@ -100,10 +128,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 40,
     left: 20
-  },
-  backButton: {
-    fontSize: 24,
-    fontWeight: 'bold'
   },
   logoContainer: {
     alignItems: 'center',

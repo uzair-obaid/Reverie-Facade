@@ -28,29 +28,31 @@ const MoodJournalScreen = () => {
   ];
 
   const workOptions = [
-    { label: 'Working', value: 'working' },
     { label: 'Eating', value: 'eating' },
     { label: 'Scrolling social media apps', value: 'scrolling' },
     { label: 'Listening to music', value: 'music' },
     { label: 'Simply Walking', value: 'walking' },
-    { label: 'Studying', value: 'studying' },
+    { label: 'Studying or working', value: 'studying' },
     { label: 'Binge watching', value: 'binge watching' },
-    { label: 'Bathing or using washroom', value: 'bathing' },
+    { label: 'Having a conversation', value: 'conversation' },
+    { label: 'Bathing or using washroom', value: 'using washroom' },
     { label: 'Being idle', value: 'idle' },
     { label: 'Laying on bed before or after sleep', value: 'laying' },
-    { label: 'Playing a sport', value: 'playing' },
+    { label: 'Doing a physical activity', value: 'activity' },
     { label: 'Other', value: 'other' },
   ];
 
   const themeOptions = [
     { label: 'Fulfilling Relationships', value: 'relationships' },
     { label: 'Conquering Challenges', value: 'challenges' },
+    { label: 'Being center of attention', value: 'being center of attention' },
+    { label: 'Being Succesful', value: 'being succesful' },
     { label: 'Fantasy', value: 'fantasy' },
     { label: 'Righting Wrongs', value: 'justice' },
     { label: 'Power & Control', value: 'power' },
     { label: 'Supernatural', value: 'supernatural' },
     { label: 'Sexual', value: 'sexual' },
-    { label: 'Creativity & Self-Expression', value: 'creativity' },
+    // { label: 'Creativity & Self-Expression', value: 'creativity' },
     { label: 'Revenge or Vindication', value: 'revenge' },
     { label: 'Griefing', value: 'grief' },
     { label: 'Other', value: 'other' },
@@ -66,14 +68,14 @@ const MoodJournalScreen = () => {
       theme: selectedTheme,
       time: selectedTime,
       duration: duration,
-      workBeforeDream: selectedPreviousWork,
+      // workBeforeDream: selectedPreviousWork,
       workDuringDream: selectedCurrentWork,
       dreamDescription: moodText,
     };
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.post('http://192.168.0.104:5000/api/journal', dreamData,
+      const response = await axios.post('http://192.168.43.227:5000/api/journal', dreamData,
         {
           headers: {
           Authorization: `Bearer ${token}`

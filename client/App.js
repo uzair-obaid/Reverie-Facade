@@ -18,6 +18,7 @@ import Helpline from './screens/Helpline';
 import DreamLog from './screens/DreamLog';
 import Terms from './screens/Terms';
 import PasswordScreen from './screens/passwordScreen';
+import TestSummaryScreen from './screens/testSummaryScreen';
 
 import JournalLogo from './assets/journallogo';
 import AnalyticsLogo from './assets/analyticslogo';
@@ -116,12 +117,12 @@ function CustomDrawerContent(props) {
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
-      <DrawerItem
+      {/* <DrawerItem
         label="Dream Analyser"
         onPress={() => props.navigation.navigate('')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
-      />
+      /> */}
       <DrawerItem
         label="Dream Logs"
         onPress={() => props.navigation.navigate('DreamLog')}
@@ -134,12 +135,12 @@ function CustomDrawerContent(props) {
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
       />
-      <DrawerItem
+      {/* <DrawerItem
         label="Helpline"
         onPress={() => props.navigation.navigate('Helpline')}
         style={styles.drawerItem}
         labelStyle={styles.drawerItemLabel}
-      />
+      /> */}
       <DrawerItem
         label="About Us"
         onPress={() => props.navigation.navigate('About')}
@@ -159,7 +160,7 @@ export default function App() {
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
           header: ({ route }) => (
-            route.name=== 'Privacy' ||route.name=== 'About' || route.name=== 'Tests' || route.name=== 'Helpline' || route.name=== 'PasswordScreen' || route.name=== 'Terms'? <></>:
+            route.name=== 'Privacy' ||route.name=== 'About' || route.name=== 'Tests' || route.name=== 'Helpline' || route.name=== 'PasswordScreen' || route.name=== 'Terms' || route.name=== 'TestSummaryScreen'? <></>:
             <Header title={route.name === 'ReverieFacade' ? 'ReverieFacade' : route.name === 'DreamLog'?'Dream Logs':route.name} />
             
           ),
@@ -170,11 +171,12 @@ export default function App() {
         <Drawer.Screen name="Privacy" component={Privacy} />
         <Drawer.Screen name="About" component={About} />
         <Drawer.Screen name="Tests" component={Tests} />
-        <Drawer.Screen name="Helpline" component={Helpline} />
+        {/* <Drawer.Screen name="Helpline" component={Helpline} /> */}
         <Drawer.Screen name="DreamLog" component={DreamLog} />
         <Drawer.Screen name="Terms" component={Terms} />
         <Drawer.Screen name="PasswordScreen" component={PasswordScreen} />
         <Drawer.Screen name="TaskComplete" component={TaskCompleteScreen} />
+        <Drawer.Screen name="TestSummaryScreen" component={TestSummaryScreen} />
         
       </Drawer.Navigator>
     </NavigationContainer>

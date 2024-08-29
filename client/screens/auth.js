@@ -1,5 +1,5 @@
-import React, { useState,useCallback,useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState,useCallback,useEffect,useRef} from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image,Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import axios from 'axios';
@@ -13,39 +13,117 @@ import LockIcon from '../assets/lockIcon';
 const Tab = createMaterialTopTabNavigator();
 
 const ProfileScreen = () => {
-  const handleLogout = async() =>{
+  const [isEditing, setIsEditing] = useState(false);
+  const [username, setUsername] = useState('');
+  const [age, setAge] = useState('');
+  const [email, setEmail] = useState('');
+  const [region, setRegion] = useState('');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = JSON.parse(await AsyncStorage.getItem('user'));
+      if (user) {
+        setUsername(user.username);
+        setAge(user.age.toString());
+        setEmail(user.email);
+        setRegion(user.region);
+      }
+    };
+    loadUser();
+  }, []);
+  const handleLogout = async () => {
     await AsyncStorage.removeItem('token');
     const token = await AsyncStorage.getItem('token');
     console.log(token);
-  }
+  };
+  const handleProfileSave = async () => {
+    const updatedProfile = {
+      username,
+      age,
+      email,
+      region,
+    };
+
+    try {
+
+      const token = await AsyncStorage.getItem('token'); // Retrieve token from AsyncStorage
+
+    const response = await axios.put('http://192.168.43.227:5000/api/auth/', 
+      updatedProfile, 
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Include the Authorization header
+        }
+      }
+    );
+
+      // const  = await response.json();
+      if (response.ok) {
+        await AsyncStorage.setItem('user', JSON.stringify(updatedProfile));
+        Alert.alert('Profile updated successfully!');
+        setIsEditing(false);
+      } else {
+        // Alert.alert('Failed to update profile', .message);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      Alert.alert('Error', 'An error occurred while updating your profile.');
+    }
+  };
+
   return (
     <View style={styles.profileContainer}>
-      
+      {isEditing ? (
+        <TouchableOpacity
+          style={styles.reportProblemContainer}
+          onPress={() => {
+            setIsEditing(false);
+            handleProfileSave();
+          }}>
+          <Text style={styles.reportProblemText}>Save Profile</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.reportProblemContainer}
+          onPress={() => setIsEditing(true)}>
+          <Text style={styles.reportProblemText}>Edit Profile</Text>
+        </TouchableOpacity>
+      )}
 
-      {/* Profile Details */}
       <View style={styles.detailsContainer}>
         <Text style={styles.label}>Name</Text>
-        <TextInput style={styles.input} placeholder="Name" value="Favour" editable={false} />
+        <TextInput
+          style={styles.profileInput}
+          value={username}
+          onChangeText={setUsername}
+          editable={isEditing}
+        />
 
         <Text style={styles.label}>Email</Text>
-        <TextInput style={styles.input} placeholder="Email" value="Favourisechap47@gmail.com" editable={false} />
+        <TextInput
+          style={styles.profileInput}
+          value={email}
+          onChangeText={setEmail}
+          editable={isEditing}
+        />
 
-        <Text style={styles.label}>Date of Birth</Text>
-        <View style={styles.dropdown}>
-          <TextInput style={styles.input} placeholder="Date of Birth" value="7/03/2005" editable={false} />
-        </View>
+        <Text style={styles.label}>Age</Text>
+        <TextInput
+          style={styles.profileInput}
+          value={age}
+          onChangeText={setAge}
+          editable={isEditing}
+        />
 
         <Text style={styles.label}>Country/Region</Text>
-        <View style={styles.dropdown}>
-          <TextInput style={styles.input} placeholder="Country/Region" value="India" editable={false} />
-        </View>
+        <TextInput
+          style={styles.profileInput}
+          value={region}
+          onChangeText={setRegion}
+          editable={isEditing}
+        />
 
-        {/* Report a Problem */}
-        <TouchableOpacity style={styles.reportProblemContainer}>
-          <Text style={styles.reportProblemText}>Report a problem</Text>
-        </TouchableOpacity>
-
-        {/* Logout */}
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Text style={styles.logoutButtonText}>Log out</Text>
         </TouchableOpacity>
@@ -54,6 +132,7 @@ const ProfileScreen = () => {
   );
 };
 
+
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,8 +140,11 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://192.168.0.104:5000/api/auth/login', { email, password });
+      const response = await axios.post('http://192.168.43.227:5000/api/auth/login', { email, password });
+      console.log(response.data);
       const token = response.data.token;
+      const user = response.data.user;
+
 
       if (response.status === 201) {
         setPassword('');
@@ -70,10 +152,8 @@ const LoginScreen = ({ navigation }) => {
       }
 
       await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('dreamLogFlag', '1');
-      await AsyncStorage.setItem('analyticFlag', '1');
-
-      // Navigate to ProfileScreen or perform other actions as needed
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+      navigation.navigate("ReverieFacade");
     } catch (error) {
       console.error(error);
     }
@@ -130,10 +210,10 @@ const LoginScreen = ({ navigation }) => {
 
       <Text style={styles.termsText}>
         By signing in with an account, you agree to our{' '}
-        <TouchableOpacity onPress={() => navigation.navigate('Terms')}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate('Terms')}>
           <Text style={styles.linkText}>Terms of Service</Text>
         </TouchableOpacity>{' '}
-        and{' '}
+        and{' '} */}
         <TouchableOpacity onPress={() => navigation.navigate('Privacy')}>
           <Text style={styles.linkText}>Privacy Policy</Text>
         </TouchableOpacity>
@@ -157,9 +237,11 @@ const SignUpScreen = ({ navigation }) => {
   const handleSignUp = () => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailPattern.test(email)) {
+      console.log(email);
       setEmailError('');
       storeEmail(email);
       navigation.navigate('PasswordScreen');
+      // setEmail('');
     } else {
       setEmailError('Please enter a valid email address');
     }
@@ -195,10 +277,10 @@ const SignUpScreen = ({ navigation }) => {
 
       <Text style={styles.termsText}>
         By clicking continue, you agree to our{' '}
-        <TouchableOpacity onPress={() => navigation.navigate('Terms')}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate('Terms')}>
           <Text style={styles.linkText}>Terms of Service</Text>
         </TouchableOpacity>{' '}
-        and{' '}
+        and{' '} */}
         <TouchableOpacity onPress={() => navigation.navigate('Privacy')}>
           <Text style={styles.linkText}>Privacy Policy</Text>
         </TouchableOpacity>
@@ -222,9 +304,9 @@ const App = () => {
   );
 
   useEffect(() => {
-    const interval = setInterval(checkLoginStatus, 1000); // Check every second
+    const interval = setInterval(checkLoginStatus, 1000); 
 
-    return () => clearInterval(interval); // Clean up the interval on component unmount
+    return () => clearInterval(interval); 
   }, []);
   
 
@@ -430,27 +512,35 @@ const styles = StyleSheet.create({
   detailsContainer: {
     paddingHorizontal: 20,
   },
-  // label: {
-  //   fontSize: 16,
-  //   fontWeight: 'bold',
-  //   marginVertical: 5,
-  // },
-  // input: {
-  //   height: 40,
-  //   borderColor: '#dcdcdc',
-  //   borderWidth: 1,
-  //   borderRadius: 5,
-  //   paddingHorizontal: 10,
-  //   backgroundColor: '#fff',
-  //   marginBottom: 10,
-  // },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginVertical: 5,
+  },
+  profileInput: {
+    height: 40,
+    borderColor: '#dcdcdc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+  },
   dropdown: {
     marginBottom: 10,
   },
   reportProblemContainer: {
     marginTop: 20,
+    marginBottom: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft:20,
+    backgroundColor:"#ccc",
+    marginRight:"auto",
+    padding:5,
+    borderColor:"#222",
+    borderWidth:1,
+    borderRadius:2
   },
   reportProblemText: {
     fontSize: 16,
